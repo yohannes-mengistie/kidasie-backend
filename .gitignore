@@ -1,0 +1,11 @@
+#Go build and test artifacts
+/bin/
+*.test
+coverage.out
+#local environment secrets
+.env
+
+#editor and operatingsystem files
+.vscode/
+.DS_Store
+.idea/
