@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"github.com/yohannes/kidasie-backend/internal/config"
 )
 
 func main() {
+	cfg := config.Load()
 	server := &http.Server{
-		Addr:         ":8090",
+		Addr:         cfg.HTTPAddress,
 		Handler:      httpapi.NewRouter(),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
