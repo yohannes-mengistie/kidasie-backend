@@ -13,7 +13,7 @@ type Verse struct {
 }
 
 func (v Verse) Contains(posMs int) bool {
-	return posMs >= v.StartMs && posMs <= v.EndMs
+	return posMs >= v.StartMs && posMs < v.EndMs
 }
 
 type Section struct {
