@@ -25,9 +25,9 @@ type Section struct {
 }
 
 func (s *Section) VerseAt(posMs int) *Verse {
-	for _, v := range s.Verses {
-		if v.Contains(posMs) {
-			return &v
+	for i := range s.Verses {
+		if s.Verses[i].Contains(posMs) {
+			return &s.Verses[i]
 		}
 	}
 	return nil

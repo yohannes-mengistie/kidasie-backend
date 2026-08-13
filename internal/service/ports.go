@@ -6,6 +6,6 @@ import (
 )
 
 type LiturgyRepository interface  {
-	ListLiturgy(ctx context.Context) ([]domain.Liturgy, error)
+	ListLiturgies(ctx context.Context) ([]domain.Liturgy, error)
 	GetSection(ctx context.Context, id int64) (*domain.Section, error)
 }
