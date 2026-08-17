@@ -10,6 +10,10 @@ type LiturgyRepository interface  {
 }
 
 type SectionRepository interface {
-	GetSection(ctx context.Context, id int64) (*domain.Section, error)
-}
+  	ListSectionsByLiturgySlug(
+  		ctx context.Context,
+  		slug string,
+  	) ([]domain.Section, error)
+  }
+
 

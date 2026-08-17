@@ -6,6 +6,7 @@ import (
 
 type RouterDependencies struct{
 	Liturgy LiturgyLister
+	Section SectionLister
 }
 
 func NewRouter(dependency RouterDependencies) http.Handler {
@@ -13,6 +14,10 @@ func NewRouter(dependency RouterDependencies) http.Handler {
 	router.HandleFunc("GET /health", health)
 	if dependency.Liturgy != nil{
 		router.HandleFunc("GET /api/v1/liturgies", listLiturgy(dependency.Liturgy))
+	}
+
+	if dependency.Section != nil{
+		router.HandleFunc("GET /api/v1/liturgies/{slug}/sections",listSections(dependency.Section))
 	}
 	
 	return router

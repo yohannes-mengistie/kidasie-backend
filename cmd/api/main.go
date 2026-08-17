@@ -34,9 +34,11 @@ func run() error{
 	}
 	defer pool.Close()
 	liturgyRepository := postgres.NewLiturgyRepo(pool)
+	sectionRepository := postgres.NewSectionRepo(pool)
 	liturgyService := service.NewLiturgyService(liturgyRepository)
+	sectionService := service.NewSectionService(sectionRepository)
 
-	handler := httpapi.NewRouter(httpapi.RouterDependencies{Liturgy: liturgyService})
+	handler := httpapi.NewRouter(httpapi.RouterDependencies{Liturgy: liturgyService , Section: sectionService})
 
 	server := &http.Server{
 		Addr:         cfg.HTTPAddress,
