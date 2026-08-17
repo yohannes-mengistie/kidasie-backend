@@ -22,7 +22,7 @@ func listSections(lister SectionLister) http.HandlerFunc{
 		slug := r.PathValue("slug")
 
 		if slug == ""{
-			writeJson(w, http.StatusBadRequest,errorResponse{
+			writeJSON(w, http.StatusBadRequest,errorResponse{
 				Error : "liturgy slug is required",
 			})
 
@@ -36,7 +36,7 @@ func listSections(lister SectionLister) http.HandlerFunc{
 				"error",
 				err,
 			)
-			writeJson(w , http.StatusInternalServerError,errorResponse{
+			writeJSON(w , http.StatusInternalServerError,errorResponse{
 				Error: "internal server error",
 			})
 			return
@@ -46,7 +46,7 @@ func listSections(lister SectionLister) http.HandlerFunc{
 			sections = []domain.Section{}
 		}
 
-		writeJson(w,http.StatusOK,listSectionReponse{
+		writeJSON(w,http.StatusOK,listSectionReponse{
 			Data:sections,
 		})
 

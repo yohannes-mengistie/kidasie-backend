@@ -16,4 +16,11 @@ type SectionRepository interface {
   	) ([]domain.Section, error)
   }
 
+type VerseRepository interface {
+  	ListVersesBySectionID(
+  		ctx context.Context,
+  		sectionID int64,
+  	) ([]domain.Verse, error)
+  }
+
 
