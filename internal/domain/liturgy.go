@@ -34,7 +34,8 @@ func (s *Section) VerseAt(posMs int) *Verse {
 }
 
 type Liturgy struct {
-	ID int64 `json:"id"`
-	Name string `json:"name"`
-	NameAm string `json:"name_am"`
-}
+  	ID     int64  `json:"id"`
+  	Slug   string `json:"slug"`
+  	Name   string `json:"name"`
+  	NameAm string `json:"name_am"`
+  }

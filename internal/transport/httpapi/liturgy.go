@@ -7,10 +7,11 @@ import (
 	"encoding/json"
 
 	"github.com/yohannes/kidasie-backend/internal/domain"
+	
 )
 
 type LiturgyLister interface{
-	ListLiturgy(ctx context.Context) ([]domain.Liturgy, error)
+	ListLiturgies(ctx context.Context) ([]domain.Liturgy, error)
 }
 
 type listLiturgyResponse struct{
@@ -23,7 +24,7 @@ type errorResponse struct{
 
 func listLiturgy(lister LiturgyLister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		liturgies , err := lister.ListLiturgy(r.Context())
+		liturgies , err := lister.ListLiturgies(r.Context())
 
 		if err != nil{
 			slog.Error("failed to list liturgies", "error", err)

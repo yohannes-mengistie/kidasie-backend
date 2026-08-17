@@ -5,14 +5,14 @@ import (
 )
 
 type RouterDependencies struct{
-	LiturgyLister LiturgyLister
+	Liturgy LiturgyLister
 }
 
 func NewRouter(dependency RouterDependencies) http.Handler {
 	router := http.NewServeMux()
 	router.HandleFunc("GET /health", health)
-	if dependency.LiturgyLister != nil{
-		router.HandleFunc("GET /api/v1/liturgies", listLiturgy(dependency.LiturgyLister))
+	if dependency.Liturgy != nil{
+		router.HandleFunc("GET /api/v1/liturgies", listLiturgy(dependency.Liturgy))
 	}
 	
 	return router

@@ -1,19 +1,46 @@
 package main
 
 import (
-	"github.com/yohannes/kidasie-backend/internal/transport/httpapi"
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
+
 	"github.com/yohannes/kidasie-backend/internal/config"
+	"github.com/yohannes/kidasie-backend/internal/database"
+	"github.com/yohannes/kidasie-backend/internal/repository/postgres"
+	"github.com/yohannes/kidasie-backend/internal/service"
+	"github.com/yohannes/kidasie-backend/internal/transport/httpapi"
 )
 
-func main() {
+
+func main(){
+	if err := run(); err != nil{
+		slog.Error("Kidasie API is stoped","error", err)
+		os.Exit(1)
+	}
+}
+
+func run() error{
 	cfg := config.Load()
+	startupCtx , cancelStartUp := context.WithTimeout(context.Background(),10*time.Second,)
+
+	pool,err := database.OpenPostgres(startupCtx,cfg.DatabaseUrl)
+	cancelStartUp()
+	if err != nil{
+		slog.Error("failed to connect to database", "error", err)
+		os.Exit(1)
+	}
+	defer pool.Close()
+	liturgyRepository := postgres.NewLiturgyRepo(pool)
+	liturgyService := service.NewLiturgyService(liturgyRepository)
+
+	handler := httpapi.NewRouter(httpapi.RouterDependencies{Liturgy: liturgyService})
+
 	server := &http.Server{
 		Addr:         cfg.HTTPAddress,
-		Handler:      httpapi.NewRouter(httpapi.RouterDependencies{}),
+		Handler:      handler,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  60 * time.Second,
@@ -24,4 +51,6 @@ func main() {
 		slog.Error("Failed to start server", "error", err)
 		os.Exit(1)
 	}
+
+	return nil
 }

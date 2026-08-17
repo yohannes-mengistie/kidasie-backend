@@ -1,0 +1,62 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/yohannes/kidasie-backend/internal/domain"
+	"github.com/yohannes/kidasie-backend/internal/service"
+)
+
+type LiturgyRepo struct {
+	pool *pgxpool.Pool
+}
+
+var _ service.LiturgyRepository = (*LiturgyRepo)(nil)
+
+func NewLiturgyRepo(pool *pgxpool.Pool) *LiturgyRepo {
+	return &LiturgyRepo{
+		pool: pool,
+	}
+}
+
+func (r *LiturgyRepo) ListLiturgies(
+	ctx context.Context,
+) ([]domain.Liturgy, error) {
+	const query = `
+  		SELECT id,slug,name, name_am
+  		FROM liturgies
+  		ORDER BY id
+  	`
+
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("query liturgies: %w", err)
+	}
+	defer rows.Close()
+
+	liturgies := make([]domain.Liturgy, 0)
+
+	for rows.Next() {
+		var liturgy domain.Liturgy
+
+		if err := rows.Scan(
+			&liturgy.ID,
+			&liturgy.Slug,
+			&liturgy.Name,
+			&liturgy.NameAm,
+		); err != nil {
+			return nil, fmt.Errorf("scan liturgy: %w", err)
+		}
+
+		liturgies = append(liturgies, liturgy)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate liturgies: %w", err)
+	}
+
+	return liturgies, nil
+}
