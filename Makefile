@@ -9,6 +9,8 @@ MIGRATIONS_DIR := migrations
 .PHONY: run fmt test vet check
 .PHONY: db-up db-down db-status
 .PHONY: migrate-up migrate-down migration seed
+.PHONY: import-content
+
 
 
 
@@ -47,3 +49,7 @@ migration:
 
 seed:
 >docker compose exec -T postgres psql -U "$(POSTGRES_USER)" -d "$(POSTGRES_DB)" < db/seeds/development.sql
+
+import-content:
+>@test -n "$(file)" || (echo "usage: make import-content file=content/example.json" && exit 1)
+>@go run ./cmd/importcontent -file "$(file)"
