@@ -42,6 +42,7 @@ func (r *SectionRepo) ListSectionsByLiturgySlug(
 		INNER JOIN liturgies AS l
 			ON l.id = s.liturgy_id
 		WHERE l.slug = $1
+			AND l.status = 'published'
 		ORDER BY s.sort_order
   `
 

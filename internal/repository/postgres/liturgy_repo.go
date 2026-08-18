@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -27,9 +27,10 @@ func (r *LiturgyRepo) ListLiturgies(
 	ctx context.Context,
 ) ([]domain.Liturgy, error) {
 	const query = `
-			SELECT id,slug,name, name_am, content_version
-			FROM liturgies
-			ORDER BY id
+			SELECT id, slug, name, name_am, content_version
+		FROM liturgies
+		WHERE status = 'published'
+		ORDER BY id
   	`
 
 	rows, err := r.pool.Query(ctx, query)
@@ -64,31 +65,31 @@ func (r *LiturgyRepo) ListLiturgies(
 }
 
 func (r *LiturgyRepo) GetLiturgyBySlug(
-  	ctx context.Context,
-  	slug string,
-  ) (*domain.Liturgy, error) {
-  	const query = `
+	ctx context.Context,
+	slug string,
+) (*domain.Liturgy, error) {
+	const query = `
 			SELECT id, slug, name, name_am, content_version
-			FROM liturgies
-			WHERE slug = $1
+		FROM liturgies
+		WHERE slug = $1
+			AND status = 'published'
   	`
 
-  	var liturgy domain.Liturgy
+	var liturgy domain.Liturgy
 
-  	err := r.pool.QueryRow(ctx, query, slug).Scan(
-  		&liturgy.ID,
-  		&liturgy.Slug,
-  		&liturgy.Name,
-  		&liturgy.NameAm,
+	err := r.pool.QueryRow(ctx, query, slug).Scan(
+		&liturgy.ID,
+		&liturgy.Slug,
+		&liturgy.Name,
+		&liturgy.NameAm,
 		&liturgy.ContentVersion,
-  	)
-  	if errors.Is(err, pgx.ErrNoRows) {
-  		return nil, domain.ErrNotFound
-  	}
-  	if err != nil {
-  		return nil, fmt.Errorf("query liturgy by slug: %w", err)
-  	}
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, domain.ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("query liturgy by slug: %w", err)
+	}
 
-  	return &liturgy, nil
-  }
-
+	return &liturgy, nil
+}

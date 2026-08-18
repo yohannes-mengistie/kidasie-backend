@@ -27,19 +27,24 @@ func (r *VerseRepo) ListVersesBySectionID(
 	sectionID int64,
 ) ([]domain.Verse, error) {
 	const query = `
-  		SELECT
-  			id,
-  			sort_order,
-  			text_geez,
-  			text_am,
-  			COALESCE(text_en, ''),
-  			role,
-  			start_ms,
-  			end_ms
-  		FROM verses
-  		WHERE section_id = $1
-  		ORDER BY sort_order
-  	`
+		SELECT
+			v.id,
+			v.sort_order,
+			v.text_geez,
+			v.text_am,
+			COALESCE(v.text_en, ''),
+			v.role,
+			v.start_ms,
+			v.end_ms
+		FROM verses AS v
+		INNER JOIN sections AS s
+			ON s.id = v.section_id
+		INNER JOIN liturgies AS l
+			ON l.id = s.liturgy_id
+		WHERE v.section_id = $1
+			AND l.status = 'published'
+		ORDER BY v.sort_order
+	`
 
 	rows, err := r.pool.Query(ctx, query, sectionID)
 	if err != nil {
