@@ -27,9 +27,9 @@ func (r *LiturgyRepo) ListLiturgies(
 	ctx context.Context,
 ) ([]domain.Liturgy, error) {
 	const query = `
-  		SELECT id,slug,name, name_am
-  		FROM liturgies
-  		ORDER BY id
+			SELECT id,slug,name, name_am, content_version
+			FROM liturgies
+			ORDER BY id
   	`
 
 	rows, err := r.pool.Query(ctx, query)
@@ -48,6 +48,7 @@ func (r *LiturgyRepo) ListLiturgies(
 			&liturgy.Slug,
 			&liturgy.Name,
 			&liturgy.NameAm,
+			&liturgy.ContentVersion,
 		); err != nil {
 			return nil, fmt.Errorf("scan liturgy: %w", err)
 		}
@@ -67,9 +68,9 @@ func (r *LiturgyRepo) GetLiturgyBySlug(
   	slug string,
   ) (*domain.Liturgy, error) {
   	const query = `
-  		SELECT id, slug, name, name_am
-  		FROM liturgies
-  		WHERE slug = $1
+			SELECT id, slug, name, name_am, content_version
+			FROM liturgies
+			WHERE slug = $1
   	`
 
   	var liturgy domain.Liturgy
@@ -79,6 +80,7 @@ func (r *LiturgyRepo) GetLiturgyBySlug(
   		&liturgy.Slug,
   		&liturgy.Name,
   		&liturgy.NameAm,
+		&liturgy.ContentVersion,
   	)
   	if errors.Is(err, pgx.ErrNoRows) {
   		return nil, domain.ErrNotFound

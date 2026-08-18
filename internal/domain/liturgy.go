@@ -41,6 +41,7 @@ type Liturgy struct {
   	Slug   string `json:"slug"`
   	Name   string `json:"name"`
   	NameAm string `json:"name_am"`
+	ContentVersion int64  `json:"content_version"`
   }
 
 type LiturgyContent struct{
