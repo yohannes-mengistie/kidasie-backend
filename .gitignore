@@ -9,3 +9,6 @@ coverage.out
 .vscode/
 .DS_Store
 .idea/
+
+# Licensed source documents and recordings
+source-material/
