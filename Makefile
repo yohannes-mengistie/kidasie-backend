@@ -36,10 +36,10 @@ db-status:
 >docker compose ps
 
 migrate-up:
->$(MIGRATE_BIN) -path $(MIGRATIONS_DIR) -database "$(DATABASE_URL)" up
+>@$(MIGRATE_BIN) -path $(MIGRATIONS_DIR) -database "$(DATABASE_URL)" up
 
 migrate-down:
->$(MIGRATE_BIN) -path $(MIGRATIONS_DIR) -database "$(DATABASE_URL)" down 1
+>@$(MIGRATE_BIN) -path $(MIGRATIONS_DIR) -database "$(DATABASE_URL)" down 1
 
 migration:
 >@test -n "$(name)" || (echo "usage: make migration name=create_example" && exit 1)
