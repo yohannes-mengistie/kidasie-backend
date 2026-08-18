@@ -1,12 +1,16 @@
 package config
 
-import "os"
+import (
+	"fmt"
+	"os"
+	"strings"
+)
 
 const defaultHTTPAddress = ":8090"
 
 type Config struct {
 	HTTPAddress string
-	DatabaseUrl string
+	DatabaseURL string
 }
 
 func Load() Config {
@@ -18,6 +22,13 @@ func Load() Config {
 
 	return Config{
 		HTTPAddress: address,
-		DatabaseUrl: databaseUrl,
+		DatabaseURL: databaseUrl,
 	}
+}
+
+func (c *Config) Validate() error {
+	if strings.TrimSpace(c.DatabaseURL) == "" {
+		return fmt.Errorf("database URL is required")
+	}
+	return nil
 }

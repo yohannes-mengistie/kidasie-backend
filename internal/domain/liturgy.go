@@ -42,3 +42,8 @@ type Liturgy struct {
   	Name   string `json:"name"`
   	NameAm string `json:"name_am"`
   }
+
+type LiturgyContent struct{
+	Liturgy Liturgy `json:"liturgy"`
+	Sections []Section `json:"sections"`
+}

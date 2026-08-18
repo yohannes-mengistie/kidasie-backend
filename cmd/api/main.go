@@ -24,9 +24,13 @@ func main(){
 
 func run() error{
 	cfg := config.Load()
+	if err := cfg.Validate(); err != nil {
+		slog.Error("Invalid configuration", "error", err)
+		os.Exit(1)
+	}
 	startupCtx , cancelStartUp := context.WithTimeout(context.Background(),10*time.Second,)
 
-	pool,err := database.OpenPostgres(startupCtx,cfg.DatabaseUrl)
+	pool,err := database.OpenPostgres(startupCtx,cfg.DatabaseURL)
 	cancelStartUp()
 	if err != nil{
 		slog.Error("failed to connect to database", "error", err)
@@ -36,11 +40,13 @@ func run() error{
 	liturgyRepository := postgres.NewLiturgyRepo(pool)
 	sectionRepository := postgres.NewSectionRepo(pool)
 	verseRepository := postgres.NewVerseRepo(pool)
+	contentRepository := postgres.NewContentRepo(pool)
 	liturgyService := service.NewLiturgyService(liturgyRepository)
 	sectionService := service.NewSectionService(sectionRepository)
 	verseService := service.NewVerseService(verseRepository)
-
-	handler := httpapi.NewRouter(httpapi.RouterDependencies{Liturgy: liturgyService , Section: sectionService , Verse :verseService})
+	contentService := service.NewContentService(contentRepository)
+	
+	handler := httpapi.NewRouter(httpapi.RouterDependencies{Liturgy: liturgyService , Section: sectionService , Verse :verseService , Readiness: pool, Content: contentService})
 
 	server := &http.Server{
 		Addr:         cfg.HTTPAddress,

@@ -8,6 +8,8 @@ type RouterDependencies struct{
 	Liturgy LiturgyReader
 	Section SectionLister
 	Verse VerseLister
+	Readiness ReadinessChecker
+	Content ContentReader
 }
 
 func NewRouter(dependency RouterDependencies) http.Handler {
@@ -25,6 +27,14 @@ func NewRouter(dependency RouterDependencies) http.Handler {
 
 	if dependency.Verse != nil{
 		router.HandleFunc("GET /api/v1/sections/{id}/verses",listVerses(dependency.Verse))
+	}
+
+	if dependency.Content != nil{
+		router.HandleFunc("GET /api/v1/liturgies/{slug}/content",getLiturgyContent(dependency.Content))
+	}
+
+	if dependency.Readiness != nil{
+		router.HandleFunc("GET /ready", readiness(dependency.Readiness))
 	}
 	
 	return router
