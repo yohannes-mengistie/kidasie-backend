@@ -7,6 +7,7 @@ import (
 
 type LiturgyRepository interface  {
 	ListLiturgies(ctx context.Context) ([]domain.Liturgy, error)
+	GetLiturgyBySlug(ctx context.Context , slug string)(*domain.Liturgy,error)
 }
 
 type SectionRepository interface {

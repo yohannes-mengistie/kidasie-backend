@@ -18,3 +18,10 @@ func NewLiturgyService(repository LiturgyRepository) *LiturgyService {
 func (s *LiturgyService) ListLiturgies(ctx context.Context) ([]domain.Liturgy, error) {
 	return s.repository.ListLiturgies(ctx)
 }
+
+func (s *LiturgyService) GetLiturgyBySlug(
+  	ctx context.Context,
+  	slug string,
+  ) (*domain.Liturgy, error) {
+  	return s.repository.GetLiturgyBySlug(ctx, slug)
+  }

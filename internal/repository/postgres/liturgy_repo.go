@@ -3,7 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
-
+	"errors"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/yohannes/kidasie-backend/internal/domain"
@@ -60,3 +61,32 @@ func (r *LiturgyRepo) ListLiturgies(
 
 	return liturgies, nil
 }
+
+func (r *LiturgyRepo) GetLiturgyBySlug(
+  	ctx context.Context,
+  	slug string,
+  ) (*domain.Liturgy, error) {
+  	const query = `
+  		SELECT id, slug, name, name_am
+  		FROM liturgies
+  		WHERE slug = $1
+  	`
+
+  	var liturgy domain.Liturgy
+
+  	err := r.pool.QueryRow(ctx, query, slug).Scan(
+  		&liturgy.ID,
+  		&liturgy.Slug,
+  		&liturgy.Name,
+  		&liturgy.NameAm,
+  	)
+  	if errors.Is(err, pgx.ErrNoRows) {
+  		return nil, domain.ErrNotFound
+  	}
+  	if err != nil {
+  		return nil, fmt.Errorf("query liturgy by slug: %w", err)
+  	}
+
+  	return &liturgy, nil
+  }
+
