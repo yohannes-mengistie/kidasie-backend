@@ -53,3 +53,16 @@ seed:
 import-content:
 >@test -n "$(file)" || (echo "usage: make import-content file=content/example.json" && exit 1)
 >@go run ./cmd/importcontent -file "$(file)"
+
+
+.PHONY: extract-slides serve-aligner
+
+SLIDE_PDF ?= source-material/liturgy.pdf
+SLIDE_AUDIO ?= source-material/audio/apostles.mp3
+SLIDE_OUT ?= content/generated/apostles-slides.json
+
+extract-slides:
+>@go run ./cmd/extractslides -pdf "$(SLIDE_PDF)" -audio "$(SLIDE_AUDIO)" -out "$(SLIDE_OUT)"
+
+serve-aligner:
+>@python3 -m http.server 4173 --directory tools/content-aligner

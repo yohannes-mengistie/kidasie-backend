@@ -12,3 +12,6 @@ coverage.out
 
 # Licensed source documents and recordings
 source-material/
+
+# Generated licensed OCR drafts
+content/generated/

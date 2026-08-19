@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kidasie Content Aligner</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #101311;
+      --panel: #1a211d;
+      --line: #344239;
+      --text: #f3f5f3;
+      --muted: #a9b5ad;
+      --accent: #d4a940;
+      --danger: #e27373;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font: 16px/1.45 system-ui, sans-serif;
+    }
+
+    main {
+      width: min(1180px, 96vw);
+      margin: 24px auto 80px;
+    }
+
+    h1, h2 {
+      margin: 0 0 16px;
+    }
+
+    .panel {
+      margin-bottom: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #0e120f;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      font-family: "Noto Sans Ethiopic", "Abyssinica SIL", sans-serif;
+      font-size: 18px;
+    }
+
+    button {
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #263129;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #17130a;
+      font-weight: 700;
+    }
+
+    button.danger {
+      color: var(--danger);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .5;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+    }
+
+    .warning {
+      color: var(--accent);
+    }
+
+    .error {
+      color: var(--danger);
+      white-space: pre-wrap;
+    }
+
+    .segment-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    code {
+      color: var(--accent);
+    }
+
+    @media (max-width: 760px) {
+      .grid, .grid.three {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="panel">
+    <h1>Kidasie Content Aligner</h1>
+    <p>
+      Load an OCR draft and the matching audio locally. Nothing is uploaded.
+      Correct every field before exporting production content.
+    </p>
+
+    <div class="grid three">
+      <label>
+        OCR draft JSON
+        <input id="draftFile" type="file" accept=".json,application/json">
+      </label>
+
+      <label>
+        Matching audio
+        <input id="audioFile" type="file" accept="audio/*">
+      </label>
+
+      <label>
+        Ethiopic OCR initially represents
+        <select id="ocrLanguage">
+          <option value="amharic">Amharic</option>
+          <option value="geez">Geʽez</option>
+        </select>
+      </label>
+    </div>
+
+    <audio id="audio" controls></audio>
+    <div id="loadStatus" class="status"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Import metadata</h2>
+
+    <div class="grid">
+      <label>
+        Slug
+        <input id="slug" value="apostles">
+      </label>
+
+      <label>
+        Audio URL for the mobile app
+        <input id="audioURL" placeholder="https://cdn.example.org/apostles.mp3">
+      </label>
+
+      <label>
+        Liturgy name
+        <input id="name" value="Anaphora of the Apostles">
+      </label>
+
+      <label>
+        Liturgy name in Amharic
+        <input id="nameAm" value="የሐዋርያት ቅዳሴ">
+      </label>
+
+      <label>
+        Section title
+        <input id="sectionTitle" value="Full Liturgy">
+      </label>
+
+      <label>
+        Section title in Amharic
+        <input id="sectionTitleAm" value="ሙሉ ቅዳሴ">
+      </label>
+    </div>
+
+    <p id="audioMetadata" class="status">Audio metadata has not been loaded.</p>
+  </section>
+
+  <section class="panel">
+    <div class="segment-heading">
+      <h2 id="segmentPosition">No draft loaded</h2>
+      <span id="sourcePage" class="status"></span>
+    </div>
+
+    <p id="segmentWarning" class="warning"></p>
+
+    <div class="grid three">
+      <label>
+        Include
+        <select id="include">
+          <option value="yes">Yes</option>
+          <option value="no">No / skip this slide</option>
+        </select>
+      </label>
+
+      <label>
+        Role
+        <select id="role">
+          <option value="">Choose after review</option>
+          <option value="priest">Priest</option>
+          <option value="assistant_priest">Assistant priest</option>
+          <option value="deacon">Deacon</option>
+          <option value="congregation">Congregation</option>
+          <option value="chanter">Chanter</option>
+          <option value="reader">Reader</option>
+          <option value="rubric">Rubric</option>
+        </select>
+      </label>
+
+      <label>
+        Source kind
+        <input id="kind" readonly>
+      </label>
+    </div>
+
+    <div class="grid three" style="margin-top: 12px">
+      <label>
+        Geʽez
+        <textarea id="textGeez"></textarea>
+      </label>
+
+      <label>
+        Amharic
+        <textarea id="textAm"></textarea>
+      </label>
+
+      <label>
+        English
+        <textarea id="textEn"></textarea>
+      </label>
+    </div>
+
+    <div class="grid" style="margin-top: 12px">
+      <label>
+        Start milliseconds
+        <input id="startMs" type="number" min="0" step="1">
+      </label>
+
+      <label>
+        End milliseconds
+        <input id="endMs" type="number" min="1" step="1">
+      </label>
+    </div>
+
+    <div class="toolbar">
+      <button id="previous">Previous</button>
+      <button id="next">Next</button>
+      <button id="seekBack">Audio −5s</button>
+      <button id="playPause">Play / pause</button>
+      <button id="seekForward">Audio +5s</button>
+      <button id="markNext" class="primary">Mark boundary and show next</button>
+      <button id="finishTiming">Finish final segment</button>
+      <button id="duplicate">Duplicate/split segment</button>
+      <button id="deleteSegment" class="danger">Delete segment</button>
+    </div>
+
+    <p class="status">
+      Shortcut: <code>Alt+N</code> marks the current audio position as the
+      next boundary. Use duplicate when one slide contains multiple speakers.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Save and export</h2>
+
+    <div class="toolbar">
+      <button id="saveReview">Save review progress</button>
+      <button id="calculateHash">Calculate audio SHA-256</button>
+      <button id="exportImport" class="primary">Export importer JSON</button>
+    </div>
+
+    <p id="exportStatus" class="status"></p>
+    <p id="errors" class="error"></p>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+const allowedRoles = new Set([
+  "priest",
+  "assistant_priest",
+  "deacon",
+  "congregation",
+  "chanter",
+  "reader",
+  "rubric"
+]);
+
+const state = {
+  sourceDraft: null,
+  segments: [],
+  current: 0,
+  audioFile: null,
+  audioSHA256: "",
+  audioSizeBytes: 0,
+  audioMIMEType: "audio/mpeg"
+};
+
+const elements = {};
+[
+  "draftFile", "audioFile", "ocrLanguage", "audio", "loadStatus",
+  "slug", "audioURL", "name", "nameAm", "sectionTitle",
+  "sectionTitleAm", "audioMetadata", "segmentPosition", "sourcePage",
+  "segmentWarning", "include", "role", "kind", "textGeez", "textAm",
+  "textEn", "startMs", "endMs", "previous", "next", "seekBack",
+  "playPause", "seekForward", "markNext", "finishTiming", "duplicate",
+  "deleteSegment", "saveReview", "calculateHash", "exportImport",
+  "exportStatus", "errors"
+].forEach(function (id) {
+  elements[id] = document.getElementById(id);
+});
+
+function currentSegment() {
+  return state.segments[state.current] || null;
+}
+
+function readMetadataForm() {
+  return {
+    slug: elements.slug.value.trim(),
+    name: elements.name.value.trim(),
+    name_am: elements.nameAm.value.trim(),
+    section_title: elements.sectionTitle.value.trim(),
+    section_title_am: elements.sectionTitleAm.value.trim(),
+    audio_url: elements.audioURL.value.trim()
+  };
+}
+
+function writeMetadataForm(metadata) {
+  if (!metadata) {
+    return;
+  }
+
+  elements.slug.value = metadata.slug || elements.slug.value;
+  elements.name.value = metadata.name || elements.name.value;
+  elements.nameAm.value = metadata.name_am || elements.nameAm.value;
+  elements.sectionTitle.value =
+    metadata.section_title || elements.sectionTitle.value;
+  elements.sectionTitleAm.value =
+    metadata.section_title_am || elements.sectionTitleAm.value;
+  elements.audioURL.value = metadata.audio_url || elements.audioURL.value;
+}
+
+function storeCurrentForm() {
+  const segment = currentSegment();
+  if (!segment) {
+    return;
+  }
+
+  segment.include = elements.include.value === "yes";
+  segment.role = elements.role.value;
+  segment.text_geez = elements.textGeez.value.trim();
+  segment.text_am = elements.textAm.value.trim();
+  segment.text_en = elements.textEn.value.trim();
+  segment.start_ms = nullableInteger(elements.startMs.value);
+  segment.end_ms = nullableInteger(elements.endMs.value);
+}
+
+function nullableInteger(value) {
+  if (String(value).trim() === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isInteger(parsed) ? parsed : null;
+}
+
+function renderCurrent() {
+  const segment = currentSegment();
+  const disabled = !segment;
+
+  [
+    "include", "role", "textGeez", "textAm", "textEn",
+    "startMs", "endMs", "previous", "next", "markNext",
+    "finishTiming", "duplicate", "deleteSegment"
+  ].forEach(function (id) {
+    elements[id].disabled = disabled;
+  });
+
+  if (!segment) {
+    elements.segmentPosition.textContent = "No draft loaded";
+    elements.sourcePage.textContent = "";
+    elements.segmentWarning.textContent = "";
+    elements.kind.value = "";
+    elements.textGeez.value = "";
+    elements.textAm.value = "";
+    elements.textEn.value = "";
+    elements.startMs.value = "";
+    elements.endMs.value = "";
+    return;
+  }
+
+  elements.segmentPosition.textContent =
+    "Segment " + (state.current + 1) + " of " + state.segments.length;
+  elements.sourcePage.textContent = "PDF page " + segment.source_page;
+  elements.segmentWarning.textContent =
+    segment.warning || "Review all OCR text and roles.";
+  elements.include.value = segment.include ? "yes" : "no";
+  elements.role.value = segment.role || "";
+  elements.kind.value = segment.kind || "";
+  elements.textGeez.value = segment.text_geez || "";
+  elements.textAm.value = segment.text_am || "";
+  elements.textEn.value = segment.text_en || "";
+  elements.startMs.value =
+    segment.start_ms === null ? "" : segment.start_ms;
+  elements.endMs.value =
+    segment.end_ms === null ? "" : segment.end_ms;
+  elements.previous.disabled = state.current === 0;
+  elements.next.disabled = state.current >= state.segments.length - 1;
+}
+
+function pagesToSegments(draft) {
+  const ocrLanguage = elements.ocrLanguage.value;
+
+  return (draft.pages || [])
+    .filter(function (page) {
+      if (page.kind === "role_header" || page.kind === "empty") {
+        return false;
+      }
+
+      return Boolean(
+        page.text_ethiopic_ocr || page.text_english_ocr
+      );
+    })
+    .map(function (page) {
+      return {
+        source_page: page.number,
+        kind: page.kind,
+        warning: page.extraction_warning || "",
+        include: true,
+        role: page.role_suggestion || "",
+        text_geez:
+          ocrLanguage === "geez" ? page.text_ethiopic_ocr || "" : "",
+        text_am:
+          ocrLanguage === "amharic" ? page.text_ethiopic_ocr || "" : "",
+        text_en: page.text_english_ocr || "",
+        start_ms: null,
+        end_ms: null
+      };
+    });
+}
+
+async function loadDraft(file) {
+  const parsed = JSON.parse(await file.text());
+
+  if (parsed.schema === "kidasie_alignment_review_v1") {
+    state.sourceDraft = parsed.source_draft || null;
+    state.segments = parsed.segments || [];
+    state.current = 0;
+    state.audioSHA256 = parsed.audio_sha256 || "";
+    state.audioSizeBytes = parsed.audio_size_bytes || 0;
+    state.audioMIMEType = parsed.audio_mime_type || "audio/mpeg";
+    writeMetadataForm(parsed.metadata);
+  } else if (parsed.schema_version === 1 && Array.isArray(parsed.pages)) {
+    state.sourceDraft = parsed;
+    state.segments = pagesToSegments(parsed);
+    state.current = 0;
+
+    if (parsed.audio) {
+      state.audioSHA256 = parsed.audio.sha256 || "";
+      state.audioSizeBytes = parsed.audio.size_bytes || 0;
+      state.audioMIMEType = parsed.audio.mime_type || "audio/mpeg";
+    }
+  } else {
+    throw new Error("Unsupported draft JSON format.");
+  }
+
+  updateAudioMetadata();
+  renderCurrent();
+}
+
+function updateAudioMetadata() {
+  const duration =
+    Number.isFinite(elements.audio.duration)
+      ? Math.round(elements.audio.duration * 1000)
+      : 0;
+
+  elements.audioMetadata.textContent = [
+    "duration_ms=" + (duration || "not loaded"),
+    "size_bytes=" + (state.audioSizeBytes || "not loaded"),
+    "mime_type=" + (state.audioMIMEType || "not loaded"),
+    "sha256=" + (state.audioSHA256 || "not calculated")
+  ].join(" | ");
+}
+
+function moveTo(index) {
+  storeCurrentForm();
+
+  if (index < 0 || index >= state.segments.length) {
+    return;
+  }
+
+  state.current = index;
+  renderCurrent();
+}
+
+function markBoundaryAndNext() {
+  const segment = currentSegment();
+  if (!segment || !Number.isFinite(elements.audio.currentTime)) {
+    return;
+  }
+
+  storeCurrentForm();
+
+  const position = Math.round(elements.audio.currentTime * 1000);
+  segment.start_ms = position;
+
+  if (state.current > 0) {
+    const previous = state.segments[state.current - 1];
+    if (previous.include) {
+      previous.end_ms = position;
+    }
+  }
+
+  if (state.current < state.segments.length - 1) {
+    state.current += 1;
+  }
+
+  renderCurrent();
+}
+
+function finishFinalSegment() {
+  storeCurrentForm();
+
+  const included = state.segments.filter(function (segment) {
+    return segment.include;
+  });
+
+  if (included.length === 0 || !Number.isFinite(elements.audio.duration)) {
+    return;
+  }
+
+  included[included.length - 1].end_ms =
+    Math.round(elements.audio.duration * 1000);
+  renderCurrent();
+}
+
+function duplicateCurrent() {
+  storeCurrentForm();
+
+  const segment = currentSegment();
+  if (!segment) {
+    return;
+  }
+
+  const copy = JSON.parse(JSON.stringify(segment));
+  copy.start_ms = null;
+  copy.end_ms = null;
+  copy.warning = "Duplicated from PDF page " + segment.source_page +
+    "; split and review both segments.";
+
+  state.segments.splice(state.current + 1, 0, copy);
+  state.current += 1;
+  renderCurrent();
+}
+
+function deleteCurrent() {
+  if (!currentSegment()) {
+    return;
+  }
+
+  state.segments.splice(state.current, 1);
+  state.current = Math.min(
+    state.current,
+    Math.max(0, state.segments.length - 1)
+  );
+  renderCurrent();
+}
+
+function downloadJSON(fileName, value) {
+  const blob = new Blob(
+    [JSON.stringify(value, null, 2) + "\n"],
+    { type: "application/json" }
+  );
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  link.click();
+
+  setTimeout(function () {
+    URL.revokeObjectURL(link.href);
+  }, 1000);
+}
+
+function saveReview() {
+  storeCurrentForm();
+
+  const value = {
+    schema: "kidasie_alignment_review_v1",
+    source_draft: state.sourceDraft,
+    metadata: readMetadataForm(),
+    audio_sha256: state.audioSHA256,
+    audio_size_bytes: state.audioSizeBytes,
+    audio_mime_type: state.audioMIMEType,
+    segments: state.segments
+  };
+
+  downloadJSON(
+    (elements.slug.value.trim() || "kidasie") + "-review.json",
+    value
+  );
+
+  elements.exportStatus.textContent = "Review progress downloaded.";
+}
+
+async function calculateAudioHash() {
+  if (!state.audioFile) {
+    throw new Error("Load the matching audio file first.");
+  }
+
+  elements.exportStatus.textContent =
+    "Calculating SHA-256; this can take a moment for a large recording…";
+
+  const buffer = await state.audioFile.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+
+  state.audioSHA256 = Array.from(new Uint8Array(digest))
+    .map(function (value) {
+      return value.toString(16).padStart(2, "0");
+    })
+    .join("");
+
+  updateAudioMetadata();
+  elements.exportStatus.textContent = "Audio SHA-256 calculated.";
+}
+
+function validateExport() {
+  storeCurrentForm();
+
+  const metadata = readMetadataForm();
+  const errors = [];
+
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug)) {
+    errors.push("Slug must use lowercase letters, numbers, and hyphens.");
+  }
+
+  [
+    ["Liturgy name", metadata.name],
+    ["Amharic liturgy name", metadata.name_am],
+    ["Section title", metadata.section_title],
+    ["Amharic section title", metadata.section_title_am],
+    ["Audio URL", metadata.audio_url]
+  ].forEach(function (entry) {
+    if (!entry[1]) {
+      errors.push(entry[0] + " is required.");
+    }
+  });
+
+  try {
+    const parsedURL = new URL(metadata.audio_url);
+    if (parsedURL.protocol !== "https:" && parsedURL.protocol !== "http:") {
+      errors.push("Audio URL must use HTTP or HTTPS.");
+    }
+  } catch (_) {
+    errors.push("Audio URL must be valid.");
+  }
+
+  if (!Number.isFinite(elements.audio.duration)) {
+    errors.push("Load the matching audio file.");
+  }
+
+  if (!state.audioSizeBytes) {
+    errors.push("Audio file size is unavailable.");
+  }
+
+  if (!/^[0-9a-f]{64}$/.test(state.audioSHA256)) {
+    errors.push("Calculate or load a valid audio SHA-256.");
+  }
+
+  const segments = state.segments.filter(function (segment) {
+    return segment.include;
+  });
+
+  if (segments.length === 0) {
+    errors.push("At least one included segment is required.");
+  }
+
+  let previousEnd = -1;
+
+  segments.forEach(function (segment, index) {
+    const label = "Segment " + (index + 1) +
+      " (PDF page " + segment.source_page + ")";
+
+    if (!allowedRoles.has(segment.role)) {
+      errors.push(label + ": choose a valid role.");
+    }
+    if (!segment.text_geez.trim()) {
+      errors.push(label + ": reviewed Geʽez text is required.");
+    }
+    if (!segment.text_am.trim()) {
+      errors.push(label + ": reviewed Amharic text is required.");
+    }
+    if (!Number.isInteger(segment.start_ms) || segment.start_ms < 0) {
+      errors.push(label + ": start_ms is required.");
+    }
+    if (
+      !Number.isInteger(segment.end_ms) ||
+      segment.end_ms <= segment.start_ms
+    ) {
+      errors.push(label + ": end_ms must be after start_ms.");
+    }
+    if (
+      Number.isInteger(segment.start_ms) &&
+      segment.start_ms < previousEnd
+    ) {
+      errors.push(label + ": timing overlaps the previous segment.");
+    }
+
+    if (Number.isInteger(segment.end_ms)) {
+      previousEnd = segment.end_ms;
+    }
+  });
+
+  return { metadata: metadata, segments: segments, errors: errors };
+}
+
+function exportImporterJSON() {
+  const result = validateExport();
+
+  if (result.errors.length > 0) {
+    elements.errors.textContent = result.errors.join("\n");
+    elements.exportStatus.textContent = "Export blocked until review is complete.";
+    return;
+  }
+
+  elements.errors.textContent = "";
+
+  const value = {
+    slug: result.metadata.slug,
+    name: result.metadata.name,
+    name_am: result.metadata.name_am,
+    sections: [
+      {
+        order: 1,
+        title: result.metadata.section_title,
+        title_am: result.metadata.section_title_am,
+        audio: {
+          url: result.metadata.audio_url,
+          duration_ms: Math.round(elements.audio.duration * 1000),
+          size_bytes: state.audioSizeBytes,
+          mime_type: state.audioMIMEType,
+          sha256: state.audioSHA256
+        },
+        verses: result.segments.map(function (segment, index) {
+          return {
+            order: index + 1,
+            text_geez: segment.text_geez.trim(),
+            text_am: segment.text_am.trim(),
+            text_en: segment.text_en.trim(),
+            role: segment.role,
+            start_ms: segment.start_ms,
+            end_ms: segment.end_ms
+          };
+        })
+      }
+    ]
+  };
+
+  downloadJSON(result.metadata.slug + ".json", value);
+  elements.exportStatus.textContent =
+    "Importer JSON downloaded. Import it as a draft and obtain final approval.";
+}
+
+elements.draftFile.addEventListener("change", async function () {
+  elements.errors.textContent = "";
+
+  try {
+    const file = elements.draftFile.files[0];
+    if (!file) {
+      return;
+    }
+
+    await loadDraft(file);
+    elements.loadStatus.textContent =
+      "Loaded " + state.segments.length + " reviewable segments.";
+  } catch (error) {
+    elements.errors.textContent = error.message;
+  }
+});
+
+elements.audioFile.addEventListener("change", function () {
+  const file = elements.audioFile.files[0];
+  if (!file) {
+    return;
+  }
+
+  state.audioFile = file;
+  state.audioSizeBytes = file.size;
+  state.audioMIMEType = file.type || "audio/mpeg";
+  elements.audio.src = URL.createObjectURL(file);
+  updateAudioMetadata();
+});
+
+elements.audio.addEventListener("loadedmetadata", updateAudioMetadata);
+elements.previous.addEventListener("click", function () {
+  moveTo(state.current - 1);
+});
+elements.next.addEventListener("click", function () {
+  moveTo(state.current + 1);
+});
+elements.seekBack.addEventListener("click", function () {
+  elements.audio.currentTime = Math.max(0, elements.audio.currentTime - 5);
+});
+elements.seekForward.addEventListener("click", function () {
+  elements.audio.currentTime = Math.min(
+    elements.audio.duration || Infinity,
+    elements.audio.currentTime + 5
+  );
+});
+elements.playPause.addEventListener("click", function () {
+  if (elements.audio.paused) {
+    elements.audio.play();
+  } else {
+    elements.audio.pause();
+  }
+});
+elements.markNext.addEventListener("click", markBoundaryAndNext);
+elements.finishTiming.addEventListener("click", finishFinalSegment);
+elements.duplicate.addEventListener("click", duplicateCurrent);
+elements.deleteSegment.addEventListener("click", deleteCurrent);
+elements.saveReview.addEventListener("click", saveReview);
+elements.calculateHash.addEventListener("click", async function () {
+  elements.errors.textContent = "";
+
+  try {
+    await calculateAudioHash();
+  } catch (error) {
+    elements.errors.textContent = error.message;
+  }
+});
+elements.exportImport.addEventListener("click", exportImporterJSON);
+
+document.addEventListener("keydown", function (event) {
+  if (event.altKey && event.key.toLowerCase() === "n") {
+    event.preventDefault();
+    markBoundaryAndNext();
+  }
+});
+
+renderCurrent();
+</script>
+</body>
+</html>
