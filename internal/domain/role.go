@@ -4,6 +4,7 @@ const (
 	RolePriest          = "priest"
 	RoleAssistantPriest = "assistant_priest"
 	RoleDeacon          = "deacon"
+	RoleAssistantDeacon = "assistant_deacon"
 	RoleCongregation    = "congregation"
 	RoleChanter         = "chanter"
 	RoleReader          = "reader"
@@ -15,6 +16,7 @@ func IsValidRole(role string) bool {
 	case RolePriest,
 		RoleAssistantPriest,
 		RoleDeacon,
+		RoleAssistantDeacon,
 		RoleCongregation,
 		RoleChanter,
 		RoleReader,

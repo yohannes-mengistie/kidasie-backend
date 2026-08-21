@@ -46,6 +46,25 @@ go run ./cmd/extractslides \
   -end 20
 ```
 
+### Corrected slide drafts
+
+The alignment page accepts both the raw extractor format and a curated slide
+format. Curated pages may keep separate `text_geez`, `text_amharic`, and
+`text_english` fields instead of copying text back into OCR fields.
+
+The loader preserves the curated structure as follows:
+
+- `people` is normalized to the backend role `congregation`.
+- `assistant_deacon` is preserved as its own backend role.
+- `parts` and separate people responses become individual audio segments.
+- title-only headers and non-spoken instructions remain visible but are excluded
+  from export by default.
+- missing language or speaker values stay visible and block final export until
+  reviewed.
+
+Do not replace corrected text with OCR merely to satisfy the old draft shape.
+The corrected JSON remains local and ignored by Git.
+
 ## 2. Review text, roles, and audio timing
 
 Start the local alignment page:

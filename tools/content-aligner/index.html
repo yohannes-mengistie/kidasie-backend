@@ -246,6 +246,7 @@
           <option value="priest">Priest</option>
           <option value="assistant_priest">Assistant priest</option>
           <option value="deacon">Deacon</option>
+          <option value="assistant_deacon">Assistant deacon</option>
           <option value="congregation">Congregation</option>
           <option value="chanter">Chanter</option>
           <option value="reader">Reader</option>
@@ -320,6 +321,7 @@
   </section>
 </main>
 
+<script src="normalizer.js"></script>
 <script>
 "use strict";
 
@@ -327,6 +329,7 @@ const allowedRoles = new Set([
   "priest",
   "assistant_priest",
   "deacon",
+  "assistant_deacon",
   "congregation",
   "chanter",
   "reader",
@@ -456,34 +459,11 @@ function renderCurrent() {
 }
 
 function pagesToSegments(draft) {
-  const ocrLanguage = elements.ocrLanguage.value;
-
-  return (draft.pages || [])
-    .filter(function (page) {
-      if (page.kind === "role_header" || page.kind === "empty") {
-        return false;
-      }
-
-      return Boolean(
-        page.text_ethiopic_ocr || page.text_english_ocr
-      );
-    })
-    .map(function (page) {
-      return {
-        source_page: page.number,
-        kind: page.kind,
-        warning: page.extraction_warning || "",
-        include: true,
-        role: page.role_suggestion || "",
-        text_geez:
-          ocrLanguage === "geez" ? page.text_ethiopic_ocr || "" : "",
-        text_am:
-          ocrLanguage === "amharic" ? page.text_ethiopic_ocr || "" : "",
-        text_en: page.text_english_ocr || "",
-        start_ms: null,
-        end_ms: null
-      };
-    });
+  return window.KidasieNormalizer.pagesToSegments(
+    draft,
+    elements.ocrLanguage.value,
+    allowedRoles
+  );
 }
 
 async function loadDraft(file) {
@@ -817,8 +797,20 @@ elements.draftFile.addEventListener("change", async function () {
     }
 
     await loadDraft(file);
-    elements.loadStatus.textContent =
-      "Loaded " + state.segments.length + " reviewable segments.";
+    const included = state.segments.filter(function (segment) {
+      return segment.include;
+    });
+    const incomplete = included.filter(function (segment) {
+      return !allowedRoles.has(segment.role) ||
+        !segment.text_geez ||
+        !segment.text_am;
+    });
+
+    elements.loadStatus.textContent = [
+      "Loaded " + state.segments.length + " segments",
+      included.length + " included",
+      incomplete.length + " requiring text or role review"
+    ].join(" | ");
   } catch (error) {
     elements.errors.textContent = error.message;
   }
