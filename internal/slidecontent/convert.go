@@ -151,14 +151,18 @@ func appendPageSegments(
 		)
 	}
 
-	if strings.TrimSpace(page.Reference) != "" {
+	reference := text{
+		amharic: page.ReferenceAmharic,
+		english: page.Reference,
+	}
+	if hasText(reference) {
 		appendVerse(
 			verses,
 			page,
 			"reference",
 			page.Kind+":reference",
 			domain.RoleReader,
-			text{english: page.Reference},
+			reference,
 		)
 	}
 

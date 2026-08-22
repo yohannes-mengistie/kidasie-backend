@@ -22,6 +22,7 @@ type Page struct {
 	Instruction        string `json:"instruction,omitempty"`
 	InstructionAmharic string `json:"instruction_amharic,omitempty"`
 	Reference          string `json:"reference,omitempty"`
+	ReferenceAmharic   string `json:"reference_amharic,omitempty"`
 	Note               string `json:"note,omitempty"`
 	NeedsReview        *bool  `json:"needs_review,omitempty"`
 
