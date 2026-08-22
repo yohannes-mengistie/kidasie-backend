@@ -10,6 +10,9 @@ MIGRATIONS_DIR := migrations
 .PHONY: db-up db-down db-status
 .PHONY: migrate-up migrate-down migration seed
 .PHONY: import-content
+.PHONY: publish-content
+.PHONY: prepare-st-mary import-st-mary publish-st-mary
+.PHONY: integrate-st-mary
 
 
 
@@ -66,3 +69,34 @@ extract-slides:
 
 serve-aligner:
 >@python3 -m http.server 4173 --directory tools/content-aligner
+
+publish-content:
+>@test -n "$(slug)" || (echo "usage: make publish-content slug=example [allow_review=true]" && exit 1)
+>@go run ./cmd/publishcontent \
+>  -slug "$(slug)" \
+>  -confirm "$(slug)" \
+>  $(if $(filter true,$(allow_review)),-allow-review-required,)
+
+ST_MARY_SOURCE ?= content/generated/st-mary-slides.json
+ST_MARY_IMPORT ?= content/generated/st-mary-import.json
+
+prepare-st-mary:
+>@go run ./cmd/convertslides \
+>  -file "$(ST_MARY_SOURCE)" \
+>  -out "$(ST_MARY_IMPORT)" \
+>  -slug "st-mary" \
+>  -name "Anaphora of St. Mary" \
+>  -name-am "የእመቤታችን የድንግል ማርያም ቅዳሴ" \
+>  -section-title "Complete Liturgy and Anaphora of St. Mary" \
+>  -section-title-am "ሙሉ ሥርዓተ ቅዳሴና የእመቤታችን ቅዳሴ"
+
+import-st-mary: prepare-st-mary
+>@go run ./cmd/importcontent -file "$(ST_MARY_IMPORT)"
+
+publish-st-mary:
+>@go run ./cmd/publishcontent \
+>  -slug "st-mary" \
+>  -confirm "st-mary" \
+>  -allow-review-required
+
+integrate-st-mary: import-st-mary publish-st-mary

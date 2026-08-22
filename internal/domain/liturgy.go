@@ -1,14 +1,19 @@
 package domain
 
 type Verse struct {
-	ID       int64  `json:"id"`
-	Order    int    `json:"order"`
-	TextGeez string `json:"text_geez"`
-	TextAm   string `json:"text_am"`
-	TextEn   string `json:"text_en"`
-	Role     string `json:"role"`
-	StartMs  int    `json:"start_ms"`
-	EndMs    int    `json:"end_ms"`
+	ID                int64  `json:"id"`
+	Order             int    `json:"order"`
+	TextGeez          string `json:"text_geez"`
+	TextAm            string `json:"text_am"`
+	TextEn            string `json:"text_en"`
+	Role              string `json:"role"`
+	StartMs           *int   `json:"start_ms,omitempty"`
+	EndMs             *int   `json:"end_ms,omitempty"`
+	SourcePage        *int   `json:"source_page,omitempty"`
+	SourcePart        string `json:"source_part,omitempty"`
+	SourceKind        string `json:"source_kind,omitempty"`
+	SourceNote        string `json:"source_note,omitempty"`
+	SourceNeedsReview bool   `json:"source_needs_review,omitempty"`
 }
 
 type Section struct {
@@ -26,7 +31,11 @@ type Section struct {
 }
 
 func (v Verse) Contains(posMs int) bool {
-	return posMs >= v.StartMs && posMs < v.EndMs
+	if v.StartMs == nil || v.EndMs == nil {
+		return false
+	}
+
+	return posMs >= *v.StartMs && posMs < *v.EndMs
 }
 
 func (s *Section) VerseAt(posMs int) *Verse {

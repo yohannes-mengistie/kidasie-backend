@@ -87,10 +87,20 @@ func (s Section) validate() error {
 			return fmt.Errorf("verses[%d]: %w", i, err)
 		}
 
+		if s.Audio != nil &&
+			(verse.StartMs == nil || verse.EndMs == nil) {
+			return fmt.Errorf(
+				"verses[%d]: timing is required when section audio is present",
+				i,
+			)
+		}
+
 		if i > 0 {
 			previous := s.Verses[i-1]
 
-			if verse.StartMs < previous.EndMs {
+			if verse.StartMs != nil &&
+				previous.EndMs != nil &&
+				*verse.StartMs < *previous.EndMs {
 				return fmt.Errorf(
 					"verses[%d]: timing overlaps the previous verse",
 					i,
@@ -139,24 +149,38 @@ func (a Audio) validate() error {
 }
 
 func (v Verse) validate() error {
-	if strings.TrimSpace(v.TextGeez) == "" {
-		return fmt.Errorf("text_geez is required")
-	}
-
-	if strings.TrimSpace(v.TextAm) == "" {
-		return fmt.Errorf("text_am is required")
+	if strings.TrimSpace(v.TextGeez) == "" &&
+		strings.TrimSpace(v.TextAm) == "" &&
+		strings.TrimSpace(v.TextEn) == "" {
+		return fmt.Errorf("at least one language text is required")
 	}
 
 	if !domain.IsValidRole(v.Role) {
 		return fmt.Errorf("unsupported role %q", v.Role)
 	}
 
-	if v.StartMs < 0 {
+	if (v.StartMs == nil) != (v.EndMs == nil) {
+		return fmt.Errorf("start_ms and end_ms must both be set or both be omitted")
+	}
+
+	if v.StartMs == nil {
+		if v.SourcePage != nil && *v.SourcePage <= 0 {
+			return fmt.Errorf("source_page must be positive")
+		}
+
+		return nil
+	}
+
+	if *v.StartMs < 0 {
 		return fmt.Errorf("start_ms must not be negative")
 	}
 
-	if v.EndMs <= v.StartMs {
+	if *v.EndMs <= *v.StartMs {
 		return fmt.Errorf("end_ms must be greater than start_ms")
+	}
+
+	if v.SourcePage != nil && *v.SourcePage <= 0 {
+		return fmt.Errorf("source_page must be positive")
 	}
 
 	return nil

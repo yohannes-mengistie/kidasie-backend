@@ -244,7 +244,12 @@ func insertVerses(
 			text_en,
 			role,
 			start_ms,
-			end_ms
+			end_ms,
+			source_page,
+			source_part,
+			source_kind,
+			source_note,
+			source_needs_review
 		)
 		VALUES (
 			$1,
@@ -254,7 +259,12 @@ func insertVerses(
 			$5,
 			$6,
 			$7,
-			$8
+			$8,
+			$9,
+			$10,
+			$11,
+			$12,
+			$13
 		)
 	`
 
@@ -277,6 +287,11 @@ func insertVerses(
 			verse.Role,
 			verse.StartMs,
 			verse.EndMs,
+			verse.SourcePage,
+			optionalString(verse.SourcePart),
+			optionalString(verse.SourceKind),
+			optionalString(verse.SourceNote),
+			verse.SourceNeedsReview,
 		); err != nil {
 			return fmt.Errorf(
 				"insert verse order %d: %w",
@@ -287,4 +302,12 @@ func insertVerses(
 	}
 
 	return nil
+}
+
+func optionalString(value string) any {
+	if strings.TrimSpace(value) == "" {
+		return nil
+	}
+
+	return value
 }

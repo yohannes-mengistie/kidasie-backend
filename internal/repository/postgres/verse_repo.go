@@ -35,7 +35,12 @@ func (r *VerseRepo) ListVersesBySectionID(
 			COALESCE(v.text_en, ''),
 			v.role,
 			v.start_ms,
-			v.end_ms
+			v.end_ms,
+			v.source_page,
+			COALESCE(v.source_part, ''),
+			COALESCE(v.source_kind, ''),
+			COALESCE(v.source_note, ''),
+			v.source_needs_review
 		FROM verses AS v
 		INNER JOIN sections AS s
 			ON s.id = v.section_id
@@ -66,6 +71,11 @@ func (r *VerseRepo) ListVersesBySectionID(
 			&verse.Role,
 			&verse.StartMs,
 			&verse.EndMs,
+			&verse.SourcePage,
+			&verse.SourcePart,
+			&verse.SourceKind,
+			&verse.SourceNote,
+			&verse.SourceNeedsReview,
 		); err != nil {
 			return nil, fmt.Errorf("scan verse: %w", err)
 		}

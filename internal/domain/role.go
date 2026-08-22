@@ -9,6 +9,7 @@ const (
 	RoleChanter         = "chanter"
 	RoleReader          = "reader"
 	RoleRubric          = "rubric"
+	RoleMixed           = "mixed"
 )
 
 func IsValidRole(role string) bool {
@@ -20,7 +21,8 @@ func IsValidRole(role string) bool {
 		RoleCongregation,
 		RoleChanter,
 		RoleReader,
-		RoleRubric:
+		RoleRubric,
+		RoleMixed:
 		return true
 	default:
 		return false
