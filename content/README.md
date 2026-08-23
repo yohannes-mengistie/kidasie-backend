@@ -64,3 +64,25 @@ make publish-st-mary
 The combined local-preview workflow is `make integrate-st-mary`. Re-import and
 review the content again when approved St. Mary audio and exact timing become
 available.
+
+## Flat anaphora preview workflow
+
+The Apostles, Our Lord Jesus Christ, and St. Athanasius source files use a
+flat slide-array format. Convert all three into importer documents with:
+
+```bash
+make prepare-anaphoras
+```
+
+The converter preserves explicit Geʽez, Amharic, and English fields, maps the
+bilingual role labels to backend roles, and keeps duplicate source-page numbers
+as separate spoken passages on the same reader page. When a source entry only
+contains `ethiopic_text`, the source does not provide a safe Geʽez/Amharic
+boundary. The converter keeps that combined text visible in the Amharic fallback
+field and marks every imported passage as requiring review.
+
+Import drafts with `make import-anaphoras`. For an authorized local or deployed
+preview, `make publish-anaphoras` uses the explicit review override, and
+`make integrate-anaphoras` performs both steps. These targets do not mean that
+the transcription has received church review; re-import and publish normally
+after the language separation and text corrections are approved.

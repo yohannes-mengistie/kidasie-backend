@@ -13,6 +13,8 @@ MIGRATIONS_DIR := migrations
 .PHONY: publish-content
 .PHONY: prepare-st-mary import-st-mary publish-st-mary
 .PHONY: integrate-st-mary
+.PHONY: prepare-anaphoras import-anaphoras publish-anaphoras
+.PHONY: integrate-anaphoras
 
 
 
@@ -100,3 +102,57 @@ publish-st-mary:
 >  -allow-review-required
 
 integrate-st-mary: import-st-mary publish-st-mary
+
+APOSTLES_SOURCE ?= content/generated/Anaphora-of-the-Apostles.json
+APOSTLES_IMPORT ?= content/generated/apostles-import.json
+OUR_LORD_SOURCE ?= content/generated/Anaphora-of-Our-Lord-Jesus-Christ.json
+OUR_LORD_IMPORT ?= content/generated/our-lord-jesus-christ-import.json
+ST_ATHANASIUS_SOURCE ?= content/generated/Anaphora-of-St-Athanasius.json
+ST_ATHANASIUS_IMPORT ?= content/generated/st-athanasius-import.json
+
+prepare-anaphoras:
+>@go run ./cmd/convertanaphora \
+>  -file "$(APOSTLES_SOURCE)" \
+>  -out "$(APOSTLES_IMPORT)" \
+>  -slug "apostles" \
+>  -name "Anaphora of the Apostles" \
+>  -name-am "የሐዋርያት ቅዳሴ" \
+>  -section-title "Complete Liturgy and Anaphora of the Apostles" \
+>  -section-title-am "ሙሉ ሥርዓተ ቅዳሴና የሐዋርያት ቅዳሴ"
+>@go run ./cmd/convertanaphora \
+>  -file "$(OUR_LORD_SOURCE)" \
+>  -out "$(OUR_LORD_IMPORT)" \
+>  -slug "our-lord-jesus-christ" \
+>  -name "Anaphora of Our Lord Jesus Christ" \
+>  -name-am "የጌታችን የኢየሱስ ክርስቶስ ቅዳሴ" \
+>  -section-title "Complete Anaphora of Our Lord Jesus Christ" \
+>  -section-title-am "ሙሉ የጌታችን የኢየሱስ ክርስቶስ ቅዳሴ"
+>@go run ./cmd/convertanaphora \
+>  -file "$(ST_ATHANASIUS_SOURCE)" \
+>  -out "$(ST_ATHANASIUS_IMPORT)" \
+>  -slug "st-athanasius" \
+>  -name "Anaphora of St. Athanasius" \
+>  -name-am "የቅዱስ አትናቴዎስ ቅዳሴ" \
+>  -section-title "Complete Liturgy and Anaphora of St. Athanasius" \
+>  -section-title-am "ሙሉ ሥርዓተ ቅዳሴና የቅዱስ አትናቴዎስ ቅዳሴ"
+
+import-anaphoras: prepare-anaphoras
+>@go run ./cmd/importcontent -file "$(APOSTLES_IMPORT)"
+>@go run ./cmd/importcontent -file "$(OUR_LORD_IMPORT)"
+>@go run ./cmd/importcontent -file "$(ST_ATHANASIUS_IMPORT)"
+
+publish-anaphoras:
+>@go run ./cmd/publishcontent \
+>  -slug "apostles" \
+>  -confirm "apostles" \
+>  -allow-review-required
+>@go run ./cmd/publishcontent \
+>  -slug "our-lord-jesus-christ" \
+>  -confirm "our-lord-jesus-christ" \
+>  -allow-review-required
+>@go run ./cmd/publishcontent \
+>  -slug "st-athanasius" \
+>  -confirm "st-athanasius" \
+>  -allow-review-required
+
+integrate-anaphoras: import-anaphoras publish-anaphoras
