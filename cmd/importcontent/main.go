@@ -67,7 +67,7 @@ func run() error {
 
 	startupCtx, cancelStartup := context.WithTimeout(
 		ctx,
-		10*time.Second,
+		time.Minute,
 	)
 
 	pool, err := database.OpenPostgres(

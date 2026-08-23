@@ -74,7 +74,7 @@ func run() error {
 	)
 	defer stop()
 
-	connectCtx, cancelConnect := context.WithTimeout(ctx, 10*time.Second)
+	connectCtx, cancelConnect := context.WithTimeout(ctx, time.Minute)
 	pool, err := database.OpenPostgres(connectCtx, cfg.DatabaseURL)
 	cancelConnect()
 	if err != nil {
