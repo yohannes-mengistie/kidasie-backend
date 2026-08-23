@@ -86,3 +86,25 @@ preview, `make publish-anaphoras` uses the explicit review override, and
 `make integrate-anaphoras` performs both steps. These targets do not mean that
 the transcription has received church review; re-import and publish normally
 after the language separation and text corrections are approved.
+
+### Separate combined Ethiopic fields
+
+Use the matching permitted PDF to suggest separate Geʽez and Amharic fields:
+
+```bash
+make separate-ethiopic \
+  file=content/generated/Anaphora-of-the-Apostles.json \
+  pdf=source-material/KidasehawariatAugust2010.pdf \
+  metadata_only=true
+```
+
+The command first uses PDF font, color, and page-position evidence. Without
+`metadata_only=true`, it also runs slower OCR on pages whose metadata does not
+prove a boundary. It writes a `-separated.json` draft and a
+`-separated-report.json` review report beside the input.
+
+Successful suggestions contain `geez_text`, `amharic_text`,
+`original_ethiopic_text`, and `separation_confidence`. Uncertain entries keep
+their original `ethiopic_text` unchanged. Generated suggestions are never
+publication approval: compare every split with the visible PDF and obtain the
+required church review before importing or publishing it.

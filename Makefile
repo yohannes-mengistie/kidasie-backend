@@ -10,6 +10,7 @@ MIGRATIONS_DIR := migrations
 .PHONY: db-up db-down db-status
 .PHONY: migrate-up migrate-down migration seed
 .PHONY: import-content
+.PHONY: separate-ethiopic
 .PHONY: publish-content
 .PHONY: prepare-st-mary import-st-mary publish-st-mary
 .PHONY: integrate-st-mary
@@ -64,6 +65,13 @@ import-content:
 >@test -n "$(file)" || (echo "usage: make import-content file=content/example.json" && exit 1)
 >@go run ./cmd/importcontent -file "$(file)"
 
+separate-ethiopic:
+>@test -n "$(file)" || (echo "usage: make separate-ethiopic file=content/generated/source.json pdf=source-material/source.pdf [metadata_only=true]" && exit 1)
+>@test -n "$(pdf)" || (echo "usage: make separate-ethiopic file=content/generated/source.json pdf=source-material/source.pdf [metadata_only=true]" && exit 1)
+>@go run ./cmd/separateethiopic \
+>  -file "$(file)" \
+>  -pdf "$(pdf)" \
+>  $(if $(filter true,$(metadata_only)),-metadata-only,)
 
 .PHONY: extract-slides serve-aligner
 

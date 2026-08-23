@@ -40,7 +40,10 @@ func Convert(
 			)
 		}
 
-		page := entry.Page
+		page := entry.SourcePage
+		if page == 0 {
+			page = entry.Page
+		}
 		verses = append(verses, contentimport.Verse{
 			Order:             index + 1,
 			TextGeez:          textGeez,

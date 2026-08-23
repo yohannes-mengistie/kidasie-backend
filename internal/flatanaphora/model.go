@@ -1,14 +1,18 @@
 package flatanaphora
 
 type Entry struct {
-	Page         int    `json:"page"`
-	Role         string `json:"role"`
-	RoleSource   string `json:"role_source"`
-	EthiopicText string `json:"ethiopic_text"`
-	GeezText     string `json:"geez_text"`
-	TextGeez     string `json:"text_geez"`
-	AmharicText  string `json:"amharic_text"`
-	EnglishText  string `json:"english_text"`
+	Page                 int     `json:"page"`
+	SourcePage           int     `json:"source_page,omitempty"`
+	Role                 string  `json:"role"`
+	RoleSource           string  `json:"role_source,omitempty"`
+	EthiopicText         string  `json:"ethiopic_text,omitempty"`
+	GeezText             string  `json:"geez_text,omitempty"`
+	TextGeez             string  `json:"text_geez,omitempty"`
+	AmharicText          string  `json:"amharic_text,omitempty"`
+	EnglishText          string  `json:"english_text,omitempty"`
+	OriginalEthiopicText string  `json:"original_ethiopic_text,omitempty"`
+	SeparationConfidence float64 `json:"separation_confidence,omitempty"`
+	SeparationNote       string  `json:"separation_note,omitempty"`
 }
 
 type Options struct {
