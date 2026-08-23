@@ -69,6 +69,7 @@ func Decode(reader io.Reader) ([]Entry, error) {
 func hasEntryText(entry Entry) bool {
 	return strings.TrimSpace(entry.EthiopicText) != "" ||
 		strings.TrimSpace(entry.GeezText) != "" ||
+		strings.TrimSpace(entry.TextGeez) != "" ||
 		strings.TrimSpace(entry.AmharicText) != "" ||
 		strings.TrimSpace(entry.EnglishText) != ""
 }

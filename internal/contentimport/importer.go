@@ -268,6 +268,8 @@ func insertVerses(
 		)
 	`
 
+	batch := &pgx.Batch{}
+
 	for i := range verses {
 		verse := verses[i]
 
@@ -276,8 +278,7 @@ func insertVerses(
 			textEn = verse.TextEn
 		}
 
-		if _, err := tx.Exec(
-			ctx,
+		batch.Queue(
 			query,
 			sectionID,
 			verse.Order,
@@ -292,13 +293,24 @@ func insertVerses(
 			optionalString(verse.SourceKind),
 			optionalString(verse.SourceNote),
 			verse.SourceNeedsReview,
-		); err != nil {
+		)
+	}
+
+	results := tx.SendBatch(ctx, batch)
+
+	for i := range verses {
+		if _, err := results.Exec(); err != nil {
+			_ = results.Close()
 			return fmt.Errorf(
 				"insert verse order %d: %w",
-				verse.Order,
+				verses[i].Order,
 				err,
 			)
 		}
+	}
+
+	if err := results.Close(); err != nil {
+		return fmt.Errorf("close verse insert batch: %w", err)
 	}
 
 	return nil

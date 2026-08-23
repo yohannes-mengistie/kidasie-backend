@@ -6,6 +6,7 @@ type Entry struct {
 	RoleSource   string `json:"role_source"`
 	EthiopicText string `json:"ethiopic_text"`
 	GeezText     string `json:"geez_text"`
+	TextGeez     string `json:"text_geez"`
 	AmharicText  string `json:"amharic_text"`
 	EnglishText  string `json:"english_text"`
 }

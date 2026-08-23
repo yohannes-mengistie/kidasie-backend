@@ -15,6 +15,11 @@ MIGRATIONS_DIR := migrations
 .PHONY: integrate-st-mary
 .PHONY: prepare-anaphoras import-anaphoras publish-anaphoras
 .PHONY: integrate-anaphoras
+.PHONY: prepare-additional-anaphoras import-additional-anaphoras
+.PHONY: publish-additional-anaphoras integrate-additional-anaphoras
+.PHONY: prepare-liturgy-guide import-liturgy-guide
+.PHONY: publish-liturgy-guide integrate-liturgy-guide
+.PHONY: integrate-additional-content
 
 
 
@@ -156,3 +161,98 @@ publish-anaphoras:
 >  -allow-review-required
 
 integrate-anaphoras: import-anaphoras publish-anaphoras
+
+ST_EPIPHANIUS_SOURCE ?= content/generated/Anaphora-of-St-Epiphanius.json
+ST_EPIPHANIUS_IMPORT ?= content/generated/st-epiphanius-import.json
+ST_JOHN_CHRYSOSTOM_SOURCE ?= content/generated/Anaphora-of-St-John-Chrysostom.json
+ST_JOHN_CHRYSOSTOM_IMPORT ?= content/generated/st-john-chrysostom-import.json
+ST_DIOSCORUS_SOURCE ?= content/generated/Anaphora-of-St-Dioscorus.json
+ST_DIOSCORUS_IMPORT ?= content/generated/st-dioscorus-import.json
+ST_DIOSCORUS_SEASONAL_SOURCE ?= content/generated/Saint-Dioscorous-Fasika-pentcost.json
+ST_DIOSCORUS_SEASONAL_IMPORT ?= content/generated/st-dioscorus-fasika-pentecost-import.json
+ST_GREGORY_SOURCE ?= content/generated/Anaphora-of-St-Gregory.json
+ST_GREGORY_IMPORT ?= content/generated/st-gregory-import.json
+
+prepare-additional-anaphoras:
+>@go run ./cmd/convertanaphora \
+>  -file "$(ST_EPIPHANIUS_SOURCE)" \
+>  -out "$(ST_EPIPHANIUS_IMPORT)" \
+>  -slug "st-epiphanius" \
+>  -name "Anaphora of St. Epiphanius" \
+>  -name-am "የቅዱስ ኤጲፋንዮስ ቅዳሴ" \
+>  -section-title "Complete Liturgy and Anaphora of St. Epiphanius" \
+>  -section-title-am "ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ኤጲፋንዮስ ቅዳሴ"
+>@go run ./cmd/convertanaphora \
+>  -file "$(ST_JOHN_CHRYSOSTOM_SOURCE)" \
+>  -out "$(ST_JOHN_CHRYSOSTOM_IMPORT)" \
+>  -slug "st-john-chrysostom" \
+>  -name "Anaphora of St. John Chrysostom" \
+>  -name-am "የቅዱስ ዮሐንስ አፈወርቅ ቅዳሴ" \
+>  -section-title "Complete Liturgy and Anaphora of St. John Chrysostom" \
+>  -section-title-am "ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ዮሐንስ አፈወርቅ ቅዳሴ"
+>@go run ./cmd/convertanaphora \
+>  -file "$(ST_DIOSCORUS_SOURCE)" \
+>  -out "$(ST_DIOSCORUS_IMPORT)" \
+>  -slug "st-dioscorus" \
+>  -name "Anaphora of St. Dioscorus" \
+>  -name-am "የቅዱስ ዲዮስቆሮስ ቅዳሴ" \
+>  -section-title "Complete Liturgy and Anaphora of St. Dioscorus" \
+>  -section-title-am "ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ዲዮስቆሮስ ቅዳሴ"
+>@go run ./cmd/convertanaphora \
+>  -file "$(ST_DIOSCORUS_SEASONAL_SOURCE)" \
+>  -out "$(ST_DIOSCORUS_SEASONAL_IMPORT)" \
+>  -slug "st-dioscorus-fasika-pentecost" \
+>  -name "St. Dioscorus for Fasika and Pentecost" \
+>  -name-am "የቅዱስ ዲዮስቆሮስ የፋሲካና የጰራቅሊጦስ ቅዳሴ" \
+>  -section-title "Complete St. Dioscorus Liturgy for Fasika and Pentecost" \
+>  -section-title-am "ሙሉ የቅዱስ ዲዮስቆሮስ የፋሲካና የጰራቅሊጦስ ቅዳሴ"
+>@go run ./cmd/convertanaphora \
+>  -file "$(ST_GREGORY_SOURCE)" \
+>  -out "$(ST_GREGORY_IMPORT)" \
+>  -slug "st-gregory" \
+>  -name "Anaphora of St. Gregory" \
+>  -name-am "የቅዱስ ጎርጎርዮስ ቅዳሴ" \
+>  -section-title "Complete Liturgy and Anaphora of St. Gregory" \
+>  -section-title-am "ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ጎርጎርዮስ ቅዳሴ"
+
+import-additional-anaphoras: prepare-additional-anaphoras
+>@go run ./cmd/importcontent -file "$(ST_EPIPHANIUS_IMPORT)"
+>@go run ./cmd/importcontent -file "$(ST_JOHN_CHRYSOSTOM_IMPORT)"
+>@go run ./cmd/importcontent -file "$(ST_DIOSCORUS_IMPORT)"
+>@go run ./cmd/importcontent -file "$(ST_DIOSCORUS_SEASONAL_IMPORT)"
+>@go run ./cmd/importcontent -file "$(ST_GREGORY_IMPORT)"
+
+publish-additional-anaphoras:
+>@go run ./cmd/publishcontent -slug "st-epiphanius" -confirm "st-epiphanius" -allow-review-required
+>@go run ./cmd/publishcontent -slug "st-john-chrysostom" -confirm "st-john-chrysostom" -allow-review-required
+>@go run ./cmd/publishcontent -slug "st-dioscorus" -confirm "st-dioscorus" -allow-review-required
+>@go run ./cmd/publishcontent -slug "st-dioscorus-fasika-pentecost" -confirm "st-dioscorus-fasika-pentecost" -allow-review-required
+>@go run ./cmd/publishcontent -slug "st-gregory" -confirm "st-gregory" -allow-review-required
+
+integrate-additional-anaphoras: import-additional-anaphoras publish-additional-anaphoras
+
+LITURGY_GUIDE_SOURCE ?= content/generated/liturgy.json
+LITURGY_GUIDE_IMPORT ?= content/generated/liturgy-guide-import.json
+
+prepare-liturgy-guide:
+>@go run ./cmd/convertguide \
+>  -file "$(LITURGY_GUIDE_SOURCE)" \
+>  -out "$(LITURGY_GUIDE_IMPORT)" \
+>  -slug "liturgy-guide" \
+>  -name "Introduction to the Divine Liturgy" \
+>  -name-am "የሥርዓተ ቅዳሴ መግቢያ" \
+>  -section-title "Understanding the Divine Liturgy" \
+>  -section-title-am "ሥርዓተ ቅዳሴን መረዳት"
+
+import-liturgy-guide: prepare-liturgy-guide
+>@go run ./cmd/importcontent -file "$(LITURGY_GUIDE_IMPORT)"
+
+publish-liturgy-guide:
+>@go run ./cmd/publishcontent \
+>  -slug "liturgy-guide" \
+>  -confirm "liturgy-guide" \
+>  -allow-review-required
+
+integrate-liturgy-guide: import-liturgy-guide publish-liturgy-guide
+
+integrate-additional-content: integrate-additional-anaphoras integrate-liturgy-guide

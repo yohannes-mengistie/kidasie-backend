@@ -19,7 +19,7 @@ func Convert(
 
 	for index := range entries {
 		entry := entries[index]
-		textGeez := strings.TrimSpace(entry.GeezText)
+		textGeez := joinUnique(entry.GeezText, entry.TextGeez)
 		textAmharic := strings.TrimSpace(entry.AmharicText)
 		textEnglish := strings.TrimSpace(entry.EnglishText)
 		ethiopicText := strings.TrimSpace(entry.EthiopicText)
@@ -95,7 +95,9 @@ func normalizeRole(role string) (string, error) {
 		return domain.RoleAssistantPriest, nil
 	case "deacon", "ዲያቆን/Deacon", "ዲያቆናት/Deacons":
 		return domain.RoleDeacon, nil
-	case "assistant_deacon", "ንፍቅ ዲያቆን/Assistant Deacon":
+	case "assistant_deacon",
+		"ንፍቅ ዲያቆን/Assistant Deacon",
+		"ንፍቅ ዲያቆናት/Assistant Deacons":
 		return domain.RoleAssistantDeacon, nil
 	case "congregation", "people", "ሕዝብ/People":
 		return domain.RoleCongregation, nil
