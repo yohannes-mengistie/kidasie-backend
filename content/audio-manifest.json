@@ -5,7 +5,16 @@
     "duration_ms": 10123807,
     "size_bytes": 161981262,
     "mime_type": "audio/mpeg",
-    "sha256": "b205f909b62aecdd26bea90859a9c4359cede9d6b77a872e386dc5c0de74a09f"
+    "sha256": "b205f909b62aecdd26bea90859a9c4359cede9d6b77a872e386dc5c0de74a09f",
+    "published": {
+      "release_tag": "audio-v1",
+      "file": "st-dioscorus.m4a",
+      "url": "https://github.com/yohannes-mengistie/kidasie-backend/releases/download/audio-v1/st-dioscorus.m4a",
+      "duration_ms": 10123761,
+      "size_bytes": 63081029,
+      "mime_type": "audio/mp4",
+      "sha256": "bea2eec79f584c073ca0066113aa2caeea5e0abdde58424d655215f12ca6b0b8"
+    }
   },
   {
     "slug": "st-epiphanius",
@@ -13,7 +22,16 @@
     "duration_ms": 10282371,
     "size_bytes": 246777658,
     "mime_type": "audio/mpeg",
-    "sha256": "dc736790e52faea6b1b554d03ddac2fd7a9fcbda07605374e9a7bb00a1410bd2"
+    "sha256": "dc736790e52faea6b1b554d03ddac2fd7a9fcbda07605374e9a7bb00a1410bd2",
+    "published": {
+      "release_tag": "audio-v1",
+      "file": "st-epiphanius.m4a",
+      "url": "https://github.com/yohannes-mengistie/kidasie-backend/releases/download/audio-v1/st-epiphanius.m4a",
+      "duration_ms": 10282330,
+      "size_bytes": 64035049,
+      "mime_type": "audio/mp4",
+      "sha256": "ecdeaeaa54e0d1648842b8ae61ffb164bc2fa06b918e5ca07e1829390216b828"
+    }
   },
   {
     "slug": "st-jacob-of-serough",
@@ -21,7 +39,16 @@
     "duration_ms": 11976856,
     "size_bytes": 287445296,
     "mime_type": "audio/mpeg",
-    "sha256": "7ab5f21f559636c25a3513f82a086ecdf094460221786b7d307614868aa6514c"
+    "sha256": "7ab5f21f559636c25a3513f82a086ecdf094460221786b7d307614868aa6514c",
+    "published": {
+      "release_tag": "audio-v1",
+      "file": "st-jacob-of-serough.m4a",
+      "url": "https://github.com/yohannes-mengistie/kidasie-backend/releases/download/audio-v1/st-jacob-of-serough.m4a",
+      "duration_ms": 11976806,
+      "size_bytes": 74430680,
+      "mime_type": "audio/mp4",
+      "sha256": "1e372b8b677f1058cf48cf5f587a357c814d95a6b76a2eda81e7300822ef3a34"
+    }
   },
   {
     "slug": "st-mary",
@@ -29,7 +56,16 @@
     "duration_ms": 12790230,
     "size_bytes": 306966288,
     "mime_type": "audio/mpeg",
-    "sha256": "70890e1835fe02aaa13f7b0e0f4533f07d85330160f633abdf20a8d463ef9fe8"
+    "sha256": "70890e1835fe02aaa13f7b0e0f4533f07d85330160f633abdf20a8d463ef9fe8",
+    "published": {
+      "release_tag": "audio-v1",
+      "file": "st-mary.m4a",
+      "url": "https://github.com/yohannes-mengistie/kidasie-backend/releases/download/audio-v1/st-mary.m4a",
+      "duration_ms": 12790201,
+      "size_bytes": 79591062,
+      "mime_type": "audio/mp4",
+      "sha256": "66adf9b73e24b5cc56cb150e4cbc75f95d1249ec18f1710ccb8c734673cad1ba"
+    }
   },
   {
     "slug": "our-lord-jesus-christ",
@@ -37,6 +73,15 @@
     "duration_ms": 10451200,
     "size_bytes": 250829564,
     "mime_type": "audio/mpeg",
-    "sha256": "2eb4a69a5e574997360f3e08daeabc26ff7bc20ba4ea6d920b2ae8f16d9643bb"
+    "sha256": "2eb4a69a5e574997360f3e08daeabc26ff7bc20ba4ea6d920b2ae8f16d9643bb",
+    "published": {
+      "release_tag": "audio-v1",
+      "file": "our-lord-jesus-christ.m4a",
+      "url": "https://github.com/yohannes-mengistie/kidasie-backend/releases/download/audio-v1/our-lord-jesus-christ.m4a",
+      "duration_ms": 10451162,
+      "size_bytes": 64894507,
+      "mime_type": "audio/mp4",
+      "sha256": "faa31f95837efe4d6722beeb6349e6662b4b2845f9443efcaa012cb59274acdf"
+    }
   }
 ]
