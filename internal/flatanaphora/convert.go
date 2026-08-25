@@ -19,9 +19,37 @@ func Convert(
 
 	for index := range entries {
 		entry := entries[index]
+		for partIndex, part := range entry.Parts {
+			role, err := normalizeRole(part.Role)
+			if err != nil {
+				return nil, Stats{}, fmt.Errorf(
+					"entries[%d].parts[%d]: %w",
+					index,
+					partIndex,
+					err,
+				)
+			}
+
+			appendVerse(
+				&verses,
+				&stats,
+				entry,
+				role,
+				part.TextGeez,
+				part.TextAmharic,
+				part.TextEnglish,
+				strings.TrimSpace(entry.RoleSource),
+				fmt.Sprintf("entry-%d-part-%d", index+1, partIndex+1),
+			)
+		}
+
+		if !hasDirectEntryText(entry) {
+			continue
+		}
+
 		textGeez := joinUnique(entry.GeezText, entry.TextGeez)
-		textAmharic := strings.TrimSpace(entry.AmharicText)
-		textEnglish := strings.TrimSpace(entry.EnglishText)
+		textAmharic := joinUnique(entry.AmharicText, entry.TextAmharic)
+		textEnglish := joinUnique(entry.EnglishText, entry.TextEnglish)
 		ethiopicText := strings.TrimSpace(entry.EthiopicText)
 		note := strings.TrimSpace(entry.RoleSource)
 
@@ -40,26 +68,19 @@ func Convert(
 			)
 		}
 
-		page := entry.Page
-		sourceKind := "flat-anaphora"
-		if kind := strings.TrimSpace(entry.Kind); kind != "" {
-			sourceKind += ":" + kind
-		}
-		verses = append(verses, contentimport.Verse{
-			Order:             index + 1,
-			TextGeez:          textGeez,
-			TextAm:            textAmharic,
-			TextEn:            textEnglish,
-			Role:              role,
-			SourcePage:        &page,
-			SourcePart:        fmt.Sprintf("entry-%d", index+1),
-			SourceKind:        sourceKind,
-			SourceNote:        note,
-			SourceNeedsReview: true,
-		})
+		appendVerse(
+			&verses,
+			&stats,
+			entry,
+			role,
+			textGeez,
+			textAmharic,
+			textEnglish,
+			note,
+			fmt.Sprintf("entry-%d", index+1),
+		)
 	}
 
-	stats.ReviewSegments = len(verses)
 	stats.UntimedSegments = len(verses)
 
 	document := &contentimport.Document{
@@ -84,6 +105,51 @@ func Convert(
 	}
 
 	return document, stats, nil
+}
+
+func hasDirectEntryText(entry Entry) bool {
+	return strings.TrimSpace(entry.EthiopicText) != "" ||
+		strings.TrimSpace(entry.GeezText) != "" ||
+		strings.TrimSpace(entry.TextGeez) != "" ||
+		strings.TrimSpace(entry.AmharicText) != "" ||
+		strings.TrimSpace(entry.TextAmharic) != "" ||
+		strings.TrimSpace(entry.EnglishText) != "" ||
+		strings.TrimSpace(entry.TextEnglish) != ""
+}
+
+func appendVerse(
+	verses *[]contentimport.Verse,
+	stats *Stats,
+	entry Entry,
+	role string,
+	textGeez string,
+	textAmharic string,
+	textEnglish string,
+	note string,
+	sourcePart string,
+) {
+	page := entry.Page
+	sourceKind := "flat-anaphora"
+	if kind := strings.TrimSpace(entry.Kind); kind != "" {
+		sourceKind += ":" + kind
+	}
+	requiresReview := entry.NeedsReview == nil || *entry.NeedsReview
+	if requiresReview {
+		stats.ReviewSegments++
+	}
+
+	*verses = append(*verses, contentimport.Verse{
+		Order:             len(*verses) + 1,
+		TextGeez:          strings.TrimSpace(textGeez),
+		TextAm:            strings.TrimSpace(textAmharic),
+		TextEn:            strings.TrimSpace(textEnglish),
+		Role:              role,
+		SourcePage:        &page,
+		SourcePart:        sourcePart,
+		SourceKind:        sourceKind,
+		SourceNote:        strings.TrimSpace(note),
+		SourceNeedsReview: requiresReview,
+	})
 }
 
 func normalizeRole(role string) (string, error) {

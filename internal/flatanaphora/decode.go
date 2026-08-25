@@ -35,7 +35,16 @@ func Decode(reader io.Reader) ([]Entry, error) {
 
 	previousPage := 0
 	for index := range entries {
-		entry := entries[index]
+		entry := &entries[index]
+		if entry.Page > 0 && entry.Number > 0 && entry.Page != entry.Number {
+			return nil, fmt.Errorf(
+				"entries[%d]: page and number must match when both are present",
+				index,
+			)
+		}
+		if entry.Page == 0 {
+			entry.Page = entry.Number
+		}
 
 		if entry.Page <= 0 {
 			return nil, fmt.Errorf(
@@ -53,11 +62,30 @@ func Decode(reader io.Reader) ([]Entry, error) {
 			)
 		}
 
-		if !hasEntryText(entry) {
+		if entry.Page > previousPage+1 {
+			return nil, fmt.Errorf(
+				"entries[%d]: page must be %d or %d",
+				index,
+				previousPage,
+				previousPage+1,
+			)
+		}
+
+		if !hasEntryText(*entry) {
 			return nil, fmt.Errorf(
 				"entries[%d]: at least one text field is required",
 				index,
 			)
+		}
+
+		for partIndex, part := range entry.Parts {
+			if !hasPartText(part) {
+				return nil, fmt.Errorf(
+					"entries[%d].parts[%d]: at least one text field is required",
+					index,
+					partIndex,
+				)
+			}
 		}
 
 		previousPage = entry.Page
@@ -71,5 +99,14 @@ func hasEntryText(entry Entry) bool {
 		strings.TrimSpace(entry.GeezText) != "" ||
 		strings.TrimSpace(entry.TextGeez) != "" ||
 		strings.TrimSpace(entry.AmharicText) != "" ||
-		strings.TrimSpace(entry.EnglishText) != ""
+		strings.TrimSpace(entry.TextAmharic) != "" ||
+		strings.TrimSpace(entry.EnglishText) != "" ||
+		strings.TrimSpace(entry.TextEnglish) != "" ||
+		len(entry.Parts) > 0
+}
+
+func hasPartText(part Part) bool {
+	return strings.TrimSpace(part.TextGeez) != "" ||
+		strings.TrimSpace(part.TextAmharic) != "" ||
+		strings.TrimSpace(part.TextEnglish) != ""
 }
