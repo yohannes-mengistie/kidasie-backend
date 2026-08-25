@@ -4,6 +4,7 @@ type Document struct {
 	Slug     string    `json:"slug"`
 	Name     string    `json:"name"`
 	NameAm   string    `json:"name_am"`
+	Audio    *Audio    `json:"audio,omitempty"`
 	Sections []Section `json:"sections"`
 }
 

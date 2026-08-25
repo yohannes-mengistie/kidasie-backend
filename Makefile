@@ -21,6 +21,10 @@ MIGRATIONS_DIR := migrations
 .PHONY: prepare-liturgy-guide import-liturgy-guide
 .PHONY: publish-liturgy-guide integrate-liturgy-guide
 .PHONY: integrate-additional-content
+.PHONY: import-catalog publish-catalog integrate-catalog
+.PHONY: prepare-all-content import-all-content publish-all-content
+.PHONY: set-audio
+.PHONY: export-offline
 
 
 
@@ -264,3 +268,43 @@ publish-liturgy-guide:
 integrate-liturgy-guide: import-liturgy-guide publish-liturgy-guide
 
 integrate-additional-content: integrate-additional-anaphoras integrate-liturgy-guide
+
+CATALOG_FILES := \
+	content/catalog/st-basil.json \
+	content/catalog/three-hundred.json \
+	content/catalog/st-cyril.json \
+	content/catalog/st-jacob-of-serough.json
+
+import-catalog:
+>@for file in $(CATALOG_FILES); do \
+>	go run ./cmd/importcontent -file "$$file" || exit 1; \
+>done
+
+publish-catalog:
+>@for slug in st-basil three-hundred st-cyril st-jacob-of-serough; do \
+>	go run ./cmd/publishcontent -slug "$$slug" -confirm "$$slug" || exit 1; \
+>done
+
+integrate-catalog: import-catalog publish-catalog
+
+prepare-all-content: prepare-st-mary prepare-anaphoras prepare-additional-anaphoras prepare-liturgy-guide
+
+import-all-content: import-st-mary import-anaphoras import-additional-anaphoras import-liturgy-guide import-catalog
+
+publish-all-content: publish-st-mary publish-anaphoras publish-additional-anaphoras publish-liturgy-guide publish-catalog
+
+set-audio:
+>@test -n "$(slug)" || (echo "usage: make set-audio slug=example file=recording.mp3 url=https://... duration_ms=123 confirm=example" && exit 1)
+>@test -n "$(file)" || (echo "file is required" && exit 1)
+>@test -n "$(url)" || (echo "url is required" && exit 1)
+>@test -n "$(duration_ms)" || (echo "duration_ms is required" && exit 1)
+>@go run ./cmd/setaudio \
+>  -slug "$(slug)" \
+>  -file "$(file)" \
+>  -url "$(url)" \
+>  -duration-ms "$(duration_ms)" \
+>  -confirm "$(confirm)"
+
+export-offline:
+>@test -n "$(out)" || (echo "usage: make export-offline out=../mobile/assets/offline" && exit 1)
+>@go run ./cmd/exportoffline -out "$(out)"

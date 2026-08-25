@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "st-dioscorus",
+    "source_file": "source-material/audio/Anaphora-of-St-Dioscorus.mp3",
+    "duration_ms": 10123807,
+    "size_bytes": 161981262,
+    "mime_type": "audio/mpeg",
+    "sha256": "b205f909b62aecdd26bea90859a9c4359cede9d6b77a872e386dc5c0de74a09f"
+  },
+  {
+    "slug": "st-epiphanius",
+    "source_file": "source-material/audio/Epiphanius.mp3",
+    "duration_ms": 10282371,
+    "size_bytes": 246777658,
+    "mime_type": "audio/mpeg",
+    "sha256": "dc736790e52faea6b1b554d03ddac2fd7a9fcbda07605374e9a7bb00a1410bd2"
+  },
+  {
+    "slug": "st-jacob-of-serough",
+    "source_file": "source-material/audio/The-Anaphora-of-St-Jacob-of-Serough.mp3",
+    "duration_ms": 11976856,
+    "size_bytes": 287445296,
+    "mime_type": "audio/mpeg",
+    "sha256": "7ab5f21f559636c25a3513f82a086ecdf094460221786b7d307614868aa6514c"
+  },
+  {
+    "slug": "st-mary",
+    "source_file": "source-material/audio/The-Anaphora-of-St-Mary .mp3",
+    "duration_ms": 12790230,
+    "size_bytes": 306966288,
+    "mime_type": "audio/mpeg",
+    "sha256": "70890e1835fe02aaa13f7b0e0f4533f07d85330160f633abdf20a8d463ef9fe8"
+  },
+  {
+    "slug": "our-lord-jesus-christ",
+    "source_file": "source-material/audio/The-Anaphora-of-the-Lord.mp3",
+    "duration_ms": 10451200,
+    "size_bytes": 250829564,
+    "mime_type": "audio/mpeg",
+    "sha256": "2eb4a69a5e574997360f3e08daeabc26ff7bc20ba4ea6d920b2ae8f16d9643bb"
+  }
+]

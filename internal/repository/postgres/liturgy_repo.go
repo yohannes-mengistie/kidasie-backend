@@ -27,10 +27,26 @@ func (r *LiturgyRepo) ListLiturgies(
 	ctx context.Context,
 ) ([]domain.Liturgy, error) {
 	const query = `
-			SELECT id, slug, name, name_am, content_version
-		FROM liturgies
-		WHERE status = 'published'
-		ORDER BY id
+		SELECT
+			l.id,
+			l.slug,
+			l.name,
+			l.name_am,
+			l.content_version,
+			l.audio_url,
+			l.audio_duration_ms,
+			l.audio_size_bytes,
+			l.audio_mime_type,
+			l.audio_sha256,
+			EXISTS (
+				SELECT 1
+				FROM sections AS s
+				INNER JOIN verses AS v ON v.section_id = s.id
+				WHERE s.liturgy_id = l.id
+			) AS has_content
+		FROM liturgies AS l
+		WHERE l.status = 'published'
+		ORDER BY l.id
   	`
 
 	rows, err := r.pool.Query(ctx, query)
@@ -44,13 +60,7 @@ func (r *LiturgyRepo) ListLiturgies(
 	for rows.Next() {
 		var liturgy domain.Liturgy
 
-		if err := rows.Scan(
-			&liturgy.ID,
-			&liturgy.Slug,
-			&liturgy.Name,
-			&liturgy.NameAm,
-			&liturgy.ContentVersion,
-		); err != nil {
+		if err := scanLiturgy(rows, &liturgy); err != nil {
 			return nil, fmt.Errorf("scan liturgy: %w", err)
 		}
 
@@ -69,21 +79,31 @@ func (r *LiturgyRepo) GetLiturgyBySlug(
 	slug string,
 ) (*domain.Liturgy, error) {
 	const query = `
-			SELECT id, slug, name, name_am, content_version
-		FROM liturgies
-		WHERE slug = $1
-			AND status = 'published'
+		SELECT
+			l.id,
+			l.slug,
+			l.name,
+			l.name_am,
+			l.content_version,
+			l.audio_url,
+			l.audio_duration_ms,
+			l.audio_size_bytes,
+			l.audio_mime_type,
+			l.audio_sha256,
+			EXISTS (
+				SELECT 1
+				FROM sections AS s
+				INNER JOIN verses AS v ON v.section_id = s.id
+				WHERE s.liturgy_id = l.id
+			) AS has_content
+		FROM liturgies AS l
+		WHERE l.slug = $1
+			AND l.status = 'published'
   	`
 
 	var liturgy domain.Liturgy
 
-	err := r.pool.QueryRow(ctx, query, slug).Scan(
-		&liturgy.ID,
-		&liturgy.Slug,
-		&liturgy.Name,
-		&liturgy.NameAm,
-		&liturgy.ContentVersion,
-	)
+	err := scanLiturgy(r.pool.QueryRow(ctx, query, slug), &liturgy)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, domain.ErrNotFound
 	}
@@ -92,4 +112,60 @@ func (r *LiturgyRepo) GetLiturgyBySlug(
 	}
 
 	return &liturgy, nil
+}
+
+type rowScanner interface {
+	Scan(dest ...any) error
+}
+
+func scanLiturgy(row rowScanner, liturgy *domain.Liturgy) error {
+	var (
+		audioURL        *string
+		audioDurationMs *int
+		audioSizeBytes  *int64
+		audioMIMEType   *string
+		audioSHA256     *string
+	)
+
+	if err := row.Scan(
+		&liturgy.ID,
+		&liturgy.Slug,
+		&liturgy.Name,
+		&liturgy.NameAm,
+		&liturgy.ContentVersion,
+		&audioURL,
+		&audioDurationMs,
+		&audioSizeBytes,
+		&audioMIMEType,
+		&audioSHA256,
+		&liturgy.HasContent,
+	); err != nil {
+		return err
+	}
+
+	if audioURL != nil {
+		liturgy.Audio = &domain.Audio{
+			URL:        *audioURL,
+			DurationMs: valueOrZero(audioDurationMs),
+			SizeBytes:  valueOrZero(audioSizeBytes),
+			MIMEType:   valueOrEmpty(audioMIMEType),
+			SHA256:     valueOrEmpty(audioSHA256),
+		}
+	}
+
+	return nil
+}
+
+func valueOrZero[T int | int64](value *T) T {
+	if value == nil {
+		return 0
+	}
+	return *value
+}
+
+func valueOrEmpty(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
 }

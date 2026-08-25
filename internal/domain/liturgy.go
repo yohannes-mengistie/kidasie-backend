@@ -53,6 +53,16 @@ type Liturgy struct {
 	Name           string `json:"name"`
 	NameAm         string `json:"name_am"`
 	ContentVersion int64  `json:"content_version"`
+	HasContent     bool   `json:"has_content"`
+	Audio          *Audio `json:"audio,omitempty"`
+}
+
+type Audio struct {
+	URL        string `json:"url"`
+	DurationMs int    `json:"duration_ms"`
+	SizeBytes  int64  `json:"size_bytes"`
+	MIMEType   string `json:"mime_type"`
+	SHA256     string `json:"sha256"`
 }
 
 type LiturgyContent struct {

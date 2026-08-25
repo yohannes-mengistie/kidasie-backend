@@ -78,19 +78,57 @@ func upsertLiturgy(
 			slug,
 			name,
 			name_am,
+			audio_url,
+			audio_duration_ms,
+			audio_size_bytes,
+			audio_mime_type,
+			audio_sha256,
 			status,
 			published_at
 		)
-		VALUES ($1, $2, $3, 'draft', NULL)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'draft', NULL)
 		ON CONFLICT (slug) DO UPDATE
 		SET
 			name = EXCLUDED.name,
 			name_am = EXCLUDED.name_am,
+			audio_url = COALESCE(EXCLUDED.audio_url, liturgies.audio_url),
+			audio_duration_ms = COALESCE(
+				EXCLUDED.audio_duration_ms,
+				liturgies.audio_duration_ms
+			),
+			audio_size_bytes = COALESCE(
+				EXCLUDED.audio_size_bytes,
+				liturgies.audio_size_bytes
+			),
+			audio_mime_type = COALESCE(
+				EXCLUDED.audio_mime_type,
+				liturgies.audio_mime_type
+			),
+			audio_sha256 = COALESCE(
+				EXCLUDED.audio_sha256,
+				liturgies.audio_sha256
+			),
 			status = 'draft',
 			published_at = NULL,
 			updated_at = NOW()
 		RETURNING id
 	`
+
+	var (
+		audioURL        any
+		audioDurationMs any
+		audioSizeBytes  any
+		audioMIMEType   any
+		audioSHA256     any
+	)
+
+	if document.Audio != nil {
+		audioURL = document.Audio.URL
+		audioDurationMs = document.Audio.DurationMs
+		audioSizeBytes = document.Audio.SizeBytes
+		audioMIMEType = document.Audio.MIMEType
+		audioSHA256 = document.Audio.SHA256
+	}
 
 	var liturgyID int64
 
@@ -100,6 +138,11 @@ func upsertLiturgy(
 		document.Slug,
 		document.Name,
 		document.NameAm,
+		audioURL,
+		audioDurationMs,
+		audioSizeBytes,
+		audioMIMEType,
+		audioSHA256,
 	).Scan(&liturgyID)
 	if err != nil {
 		return 0, fmt.Errorf("upsert liturgy: %w", err)

@@ -177,13 +177,6 @@ func publish(
 		)
 	}
 
-	if summary.Sections == 0 || summary.Verses == 0 {
-		return publicationSummary{}, fmt.Errorf(
-			"liturgy %q has no importable content",
-			slug,
-		)
-	}
-
 	if summary.ReviewRequired > 0 && !allowReviewRequired {
 		return publicationSummary{}, fmt.Errorf(
 			"%d verse segments still require review; "+

@@ -41,6 +41,10 @@ func Convert(
 		}
 
 		page := entry.Page
+		sourceKind := "flat-anaphora"
+		if kind := strings.TrimSpace(entry.Kind); kind != "" {
+			sourceKind += ":" + kind
+		}
 		verses = append(verses, contentimport.Verse{
 			Order:             index + 1,
 			TextGeez:          textGeez,
@@ -49,7 +53,7 @@ func Convert(
 			Role:              role,
 			SourcePage:        &page,
 			SourcePart:        fmt.Sprintf("entry-%d", index+1),
-			SourceKind:        "flat-anaphora",
+			SourceKind:        sourceKind,
 			SourceNote:        note,
 			SourceNeedsReview: true,
 		})

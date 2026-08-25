@@ -3,6 +3,7 @@ package flatanaphora
 type Entry struct {
 	Page                 int     `json:"page"`
 	SourcePage           int     `json:"source_page,omitempty"`
+	Kind                 string  `json:"kind,omitempty"`
 	Role                 string  `json:"role"`
 	RoleSource           string  `json:"role_source,omitempty"`
 	EthiopicText         string  `json:"ethiopic_text,omitempty"`

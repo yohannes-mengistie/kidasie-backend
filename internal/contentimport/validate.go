@@ -29,8 +29,10 @@ func (d Document) Validate() error {
 		return fmt.Errorf("name_am is required")
 	}
 
-	if len(d.Sections) == 0 {
-		return fmt.Errorf("at least one section is required")
+	if d.Audio != nil {
+		if err := d.Audio.Validate(); err != nil {
+			return fmt.Errorf("audio: %w", err)
+		}
 	}
 
 	for i := range d.Sections {
@@ -62,7 +64,7 @@ func (s Section) validate() error {
 	}
 
 	if s.Audio != nil {
-		if err := s.Audio.validate(); err != nil {
+		if err := s.Audio.Validate(); err != nil {
 			return fmt.Errorf("audio: %w", err)
 		}
 	}
@@ -112,7 +114,7 @@ func (s Section) validate() error {
 	return nil
 }
 
-func (a Audio) validate() error {
+func (a Audio) Validate() error {
 	parsedURL, err := url.Parse(a.URL)
 	if err != nil {
 		return fmt.Errorf("invalid URL: %w", err)
