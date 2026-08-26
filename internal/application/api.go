@@ -34,13 +34,15 @@ func RunAPI() error {
 	sectionService := service.NewSectionService(postgres.NewSectionRepo(pool))
 	verseService := service.NewVerseService(postgres.NewVerseRepo(pool))
 	contentService := service.NewContentService(postgres.NewContentRepo(pool))
+	announcementService := service.NewAnnouncementService(postgres.NewAnnouncementRepo(pool))
 
 	handler := httpapi.NewRouter(httpapi.RouterDependencies{
-		Liturgy:   liturgyService,
-		Section:   sectionService,
-		Verse:     verseService,
-		Readiness: pool,
-		Content:   contentService,
+		Liturgy:      liturgyService,
+		Section:      sectionService,
+		Verse:        verseService,
+		Readiness:    pool,
+		Content:      contentService,
+		Announcement: announcementService,
 	})
 
 	server := &http.Server{

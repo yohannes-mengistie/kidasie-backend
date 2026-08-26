@@ -1,0 +1,14 @@
+{
+  "slug": "example-announcement",
+  "title_am": "አዲስ ማስታወቂያ",
+  "title_en": "New announcement",
+  "body_am": "የማስታወቂያው ሙሉ መልእክት እዚህ ይጻፋል።",
+  "body_en": "Write the complete announcement message here.",
+  "kind": "general",
+  "action_type": "none",
+  "action_value": "",
+  "priority": 0,
+  "is_pinned": false,
+  "status": "draft",
+  "expires_at": null
+}

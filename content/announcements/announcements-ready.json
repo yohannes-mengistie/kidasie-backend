@@ -1,0 +1,14 @@
+{
+  "slug": "announcements-ready",
+  "title_am": "የማስታወቂያ ገጽ ተጨምሯል",
+  "title_en": "Announcements are now available",
+  "body_am": "አዲስ የቅዳሴ ይዘት፣ ድምፅ ወይም የመተግበሪያ ዝማኔ ሲኖር መረጃውን እዚህ ያገኛሉ።",
+  "body_en": "You will find notices here whenever new liturgy content, audio, or an app update becomes available.",
+  "kind": "app_update",
+  "action_type": "none",
+  "action_value": "",
+  "priority": 50,
+  "is_pinned": true,
+  "status": "published",
+  "expires_at": null
+}

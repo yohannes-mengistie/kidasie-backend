@@ -24,6 +24,7 @@ MIGRATIONS_DIR := migrations
 .PHONY: import-catalog publish-catalog integrate-catalog
 .PHONY: prepare-all-content import-all-content publish-all-content
 .PHONY: set-audio
+.PHONY: upsert-announcement
 .PHONY: export-offline
 
 
@@ -68,6 +69,11 @@ seed:
 import-content:
 >@test -n "$(file)" || (echo "usage: make import-content file=content/example.json" && exit 1)
 >@go run ./cmd/importcontent -file "$(file)"
+
+upsert-announcement:
+>@test -n "$(file)" || (echo "usage: make upsert-announcement file=content/announcements/example.json confirm=example-announcement" && exit 1)
+>@test -n "$(confirm)" || (echo "confirm is required" && exit 1)
+>@go run ./cmd/upsertannouncement -file "$(file)" -confirm "$(confirm)"
 
 separate-ethiopic:
 >@test -n "$(file)" || (echo "usage: make separate-ethiopic file=content/generated/source.json pdf=source-material/source.pdf [metadata_only=true]" && exit 1)

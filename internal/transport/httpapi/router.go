@@ -4,39 +4,44 @@ import (
 	"net/http"
 )
 
-type RouterDependencies struct{
-	Liturgy LiturgyReader
-	Section SectionLister
-	Verse VerseLister
-	Readiness ReadinessChecker
-	Content ContentReader
+type RouterDependencies struct {
+	Liturgy      LiturgyReader
+	Section      SectionLister
+	Verse        VerseLister
+	Readiness    ReadinessChecker
+	Content      ContentReader
+	Announcement AnnouncementReader
 }
 
 func NewRouter(dependency RouterDependencies) http.Handler {
 	router := http.NewServeMux()
 	router.HandleFunc("GET /health", health)
-	if dependency.Liturgy != nil{
+	if dependency.Liturgy != nil {
 		router.HandleFunc("GET /api/v1/liturgies", listLiturgy(dependency.Liturgy))
-		router.HandleFunc("GET /api/v1/liturgies/{slug}",getLiturgy(dependency.Liturgy))
+		router.HandleFunc("GET /api/v1/liturgies/{slug}", getLiturgy(dependency.Liturgy))
 
 	}
 
-	if dependency.Section != nil{
-		router.HandleFunc("GET /api/v1/liturgies/{slug}/sections",listSections(dependency.Section))
+	if dependency.Section != nil {
+		router.HandleFunc("GET /api/v1/liturgies/{slug}/sections", listSections(dependency.Section))
 	}
 
-	if dependency.Verse != nil{
-		router.HandleFunc("GET /api/v1/sections/{id}/verses",listVerses(dependency.Verse))
+	if dependency.Verse != nil {
+		router.HandleFunc("GET /api/v1/sections/{id}/verses", listVerses(dependency.Verse))
 	}
 
-	if dependency.Content != nil{
-		router.HandleFunc("GET /api/v1/liturgies/{slug}/content",getLiturgyContent(dependency.Content))
+	if dependency.Content != nil {
+		router.HandleFunc("GET /api/v1/liturgies/{slug}/content", getLiturgyContent(dependency.Content))
 	}
 
-	if dependency.Readiness != nil{
+	if dependency.Announcement != nil {
+		router.HandleFunc("GET /api/v1/announcements", listAnnouncements(dependency.Announcement))
+	}
+
+	if dependency.Readiness != nil {
 		router.HandleFunc("GET /ready", readiness(dependency.Readiness))
 	}
-	
+
 	return router
 }
 
