@@ -293,11 +293,47 @@ publish-catalog:
 
 integrate-catalog: import-catalog publish-catalog
 
-prepare-all-content: prepare-st-mary prepare-anaphoras prepare-additional-anaphoras prepare-liturgy-guide
+# The fourteen liturgies now come from content/updated. The targets above that
+# build the same slugs out of content/generated are kept for reference but are
+# deliberately no longer part of these aggregates: running both would overwrite
+# the newer content with the older OCR drafts.
+#
+# import-catalog is excluded for the same reason. Its four stubs carry empty
+# section lists, and importing a document replaces a liturgy's sections
+# wholesale, so it would now erase the real content that st-basil, st-cyril,
+# st-jacob-of-serough and three-hundred just gained.
 
-import-all-content: import-st-mary import-anaphoras import-additional-anaphoras import-liturgy-guide import-catalog
+.PHONY: prepare-dioscorus-seasonal import-dioscorus-seasonal
+.PHONY: publish-dioscorus-seasonal integrate-dioscorus-seasonal
 
-publish-all-content: publish-st-mary publish-anaphoras publish-additional-anaphoras publish-liturgy-guide publish-catalog
+# Saint-Dioscorous-Fasika-pentcost.json has no content/updated counterpart, so
+# this one liturgy still runs through the older flat-anaphora pipeline.
+prepare-dioscorus-seasonal:
+>@go run ./cmd/convertanaphora \
+>  -file "$(ST_DIOSCORUS_SEASONAL_SOURCE)" \
+>  -out "$(ST_DIOSCORUS_SEASONAL_IMPORT)" \
+>  -slug "st-dioscorus-fasika-pentecost" \
+>  -name "St. Dioscorus for Fasika and Pentecost" \
+>  -name-am "የቅዱስ ዲዮስቆሮስ የፋሲካና የጰራቅሊጦስ ቅዳሴ" \
+>  -section-title "Complete St. Dioscorus Liturgy for Fasika and Pentecost" \
+>  -section-title-am "ሙሉ የቅዱስ ዲዮስቆሮስ የፋሲካና የጰራቅሊጦስ ቅዳሴ"
+
+import-dioscorus-seasonal: prepare-dioscorus-seasonal
+>@go run ./cmd/importcontent -file "$(ST_DIOSCORUS_SEASONAL_IMPORT)"
+
+publish-dioscorus-seasonal:
+>@go run ./cmd/publishcontent \
+>  -slug "st-dioscorus-fasika-pentecost" \
+>  -confirm "st-dioscorus-fasika-pentecost" \
+>  -allow-review-required
+
+integrate-dioscorus-seasonal: import-dioscorus-seasonal publish-dioscorus-seasonal
+
+prepare-all-content: prepare-updated-liturgies prepare-dioscorus-seasonal prepare-liturgy-guide
+
+import-all-content: import-updated-liturgies import-dioscorus-seasonal import-liturgy-guide
+
+publish-all-content: publish-updated-liturgies publish-dioscorus-seasonal publish-liturgy-guide
 
 set-audio:
 >@test -n "$(slug)" || (echo "usage: make set-audio slug=example file=recording.mp3 url=https://... duration_ms=123 confirm=example" && exit 1)
@@ -314,3 +350,47 @@ set-audio:
 export-offline:
 >@test -n "$(out)" || (echo "usage: make export-offline out=../mobile/assets/offline" && exit 1)
 >@go run ./cmd/exportoffline -out "$(out)"
+
+# --- Normalized liturgy sources (content/updated) -------------------------
+#
+# The anaphoras under content/updated no longer carry the shared opening.
+# Qidase_serate.json holds it once and every conversion joins it in front of
+# the anaphora, renumbering the pages continuously across the join. Pages are
+# packed to a rune budget so a service runs to roughly half as many pages as
+# its source groups without any one page turning into a long scroll.
+
+UPDATED_DIR ?= content/updated
+UPDATED_BEGINNING ?= $(UPDATED_DIR)/Qidase_serate.json
+UPDATED_MANIFEST ?= content/updated-liturgies.tsv
+UPDATED_IMPORT_DIR ?= content/generated/updated
+UPDATED_TARGET_RUNES ?= 1000
+UPDATED_SLUGS := $(shell awk -F'\t' 'NF > 1 && $$0 !~ /^#/ { print $$1 }' content/updated-liturgies.tsv)
+
+.PHONY: prepare-updated-liturgies import-updated-liturgies
+.PHONY: publish-updated-liturgies integrate-updated-liturgies
+
+prepare-updated-liturgies:
+>@go run ./cmd/convertliturgy \
+>  -beginning "$(UPDATED_BEGINNING)" \
+>  -manifest "$(UPDATED_MANIFEST)" \
+>  -source-dir "$(UPDATED_DIR)" \
+>  -out-dir "$(UPDATED_IMPORT_DIR)" \
+>  -target-runes "$(UPDATED_TARGET_RUNES)"
+
+import-updated-liturgies: prepare-updated-liturgies
+>@for slug in $(UPDATED_SLUGS); do \
+>	go run ./cmd/importcontent \
+>	  -file "$(UPDATED_IMPORT_DIR)/$$slug-import.json" || exit 1; \
+>done
+
+# Five entries in the shared beginning are still flagged needs_review, so this
+# publishes as an explicit preview until they are cleared.
+publish-updated-liturgies:
+>@for slug in $(UPDATED_SLUGS); do \
+>	go run ./cmd/publishcontent \
+>	  -slug "$$slug" \
+>	  -confirm "$$slug" \
+>	  -allow-review-required || exit 1; \
+>done
+
+integrate-updated-liturgies: import-updated-liturgies publish-updated-liturgies

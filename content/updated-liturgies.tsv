@@ -1,0 +1,20 @@
+# Normalized liturgy sources under content/updated.
+# Each anaphora is joined with the shared beginning (Qidase_serate.json)
+# at conversion time, so the beginning is stored once rather than copied
+# into all fourteen files.
+#
+# Tab-separated: slug<TAB>source file<TAB>name<TAB>name_am<TAB>section title<TAB>section title_am
+apostles	Anaphora-of-the-Apostles.json	Anaphora of the Apostles	የሐዋርያት ቅዳሴ	Complete Liturgy and Anaphora of the Apostles	ሙሉ ሥርዓተ ቅዳሴና የሐዋርያት ቅዳሴ
+st-mary	Anaphora_of_st_mary.json	Anaphora of St. Mary	የእመቤታችን የድንግል ማርያም ቅዳሴ	Complete Liturgy and Anaphora of St. Mary	ሙሉ ሥርዓተ ቅዳሴና የእመቤታችን ቅዳሴ
+our-lord-jesus-christ	Qidase_egzie.json	Anaphora of Our Lord Jesus Christ	የጌታችን የኢየሱስ ክርስቶስ ቅዳሴ	Complete Liturgy and Anaphora of Our Lord Jesus Christ	ሙሉ ሥርዓተ ቅዳሴና የጌታችን የኢየሱስ ክርስቶስ ቅዳሴ
+st-athanasius	Qidase_atnatewos.json	Anaphora of St. Athanasius	የቅዱስ አትናቴዎስ ቅዳሴ	Complete Liturgy and Anaphora of St. Athanasius	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ አትናቴዎስ ቅዳሴ
+st-epiphanius	Qidase_epifanyos.json	Anaphora of St. Epiphanius	የቅዱስ ኤጲፋንዮስ ቅዳሴ	Complete Liturgy and Anaphora of St. Epiphanius	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ኤጲፋንዮስ ቅዳሴ
+st-john-chrysostom	Qidase_afeworq.json	Anaphora of St. John Chrysostom	የቅዱስ ዮሐንስ አፈወርቅ ቅዳሴ	Complete Liturgy and Anaphora of St. John Chrysostom	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ዮሐንስ አፈወርቅ ቅዳሴ
+st-dioscorus	Qidase_dioskoros.json	Anaphora of St. Dioscorus	የቅዱስ ዲዮስቆሮስ ቅዳሴ	Complete Liturgy and Anaphora of St. Dioscorus	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ዲዮስቆሮስ ቅዳሴ
+st-gregory	Qidase_gorgoryos.json	Anaphora of St. Gregory	የቅዱስ ጎርጎርዮስ ቅዳሴ	Complete Liturgy and Anaphora of St. Gregory	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ጎርጎርዮስ ቅዳሴ
+st-gregory-second	Qidase gorgoryos_kalie.json	Anaphora of St. Gregory II	የቅዱስ ጎርጎርዮስ ካልዕ ቅዳሴ	Complete Liturgy and Anaphora of St. Gregory II	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ጎርጎርዮስ ካልዕ ቅዳሴ
+st-basil	Qidase_baslyos.json	Anaphora of St. Basil	የቅዱስ ባስልዮስ ቅዳሴ	Complete Liturgy and Anaphora of St. Basil	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ባስልዮስ ቅዳሴ
+st-cyril	Qidase_qerlos.json	Anaphora of St. Cyril	የቅዱስ ኩርሎስ ቅዳሴ	Complete Liturgy and Anaphora of St. Cyril	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ኩርሎስ ቅዳሴ
+st-jacob-of-serough	Qidase_yaqob_serug.json	Anaphora of St. Jacob of Serough	የቅዱስ ያዕቆብ ዘሥሩግ ቅዳሴ	Complete Liturgy and Anaphora of St. Jacob of Serough	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ያዕቆብ ዘሥሩግ ቅዳሴ
+three-hundred	Qidase_selestu.json	Anaphora of the Three Hundred and Eighteen Fathers	የ፫ መቶ ፲፰ ቅዱሳን አበው ቅዳሴ	Complete Liturgy and Anaphora of the Three Hundred and Eighteen Fathers	ሙሉ ሥርዓተ ቅዳሴና የ፫ መቶ ፲፰ ቅዱሳን አበው ቅዳሴ
+john-son-of-thunder	Qidase_yohannes.json	Anaphora of St. John son of Thunder	የቅዱስ ዮሐንስ ወልደ ነጐድጓድ ቅዳሴ	Complete Liturgy and Anaphora of St. John son of Thunder	ሙሉ ሥርዓተ ቅዳሴና የቅዱስ ዮሐንስ ወልደ ነጐድጓድ ቅዳሴ
