@@ -2,9 +2,9 @@ package httpapi
 
 import (
 	"context"
+	"fmt"
 	"github.com/yohannes/kidasie-backend/internal/domain"
 	"net/http"
-	"fmt"
 )
 
 type ContentReader interface {

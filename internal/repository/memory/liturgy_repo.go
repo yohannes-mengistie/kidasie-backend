@@ -39,22 +39,21 @@ func (r *LiturgyRepo) ListLiturgies(
 }
 
 func (r *LiturgyRepo) GetSection(
-  	ctx context.Context,
-  	id int64,
-  ) (*domain.Section, error) {
-  	if err := ctx.Err(); err != nil {
-  		return nil, err
-  	}
+	ctx context.Context,
+	id int64,
+) (*domain.Section, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 
-  	section, exists := r.sections[id]
-  	if !exists {
-  		return nil, domain.ErrNotFound
-  	}
+	section, exists := r.sections[id]
+	if !exists {
+		return nil, domain.ErrNotFound
+	}
 
-  	result := *section
-  	result.Verses = make([]domain.Verse, len(section.Verses))
-  	copy(result.Verses, section.Verses)
+	result := *section
+	result.Verses = make([]domain.Verse, len(section.Verses))
+	copy(result.Verses, section.Verses)
 
-  	return &result, nil
-  }
-
+	return &result, nil
+}

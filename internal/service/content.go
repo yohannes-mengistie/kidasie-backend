@@ -5,17 +5,16 @@ import (
 	"github.com/yohannes/kidasie-backend/internal/domain"
 )
 
-
-type ContentService struct{
+type ContentService struct {
 	repository ContentRepository
 }
 
-func NewContentService(repository ContentRepository) *ContentService{
+func NewContentService(repository ContentRepository) *ContentService {
 	return &ContentService{
-		repository:repository,
+		repository: repository,
 	}
 }
 
-func (s *ContentService) GetLiturgyContentBySlug(ctx context.Context, slug string)(*domain.LiturgyContent,error){
-	return s.repository.GetLiturgyContentBySlug(ctx,slug)
+func (s *ContentService) GetLiturgyContentBySlug(ctx context.Context, slug string) (*domain.LiturgyContent, error) {
+	return s.repository.GetLiturgyContentBySlug(ctx, slug)
 }

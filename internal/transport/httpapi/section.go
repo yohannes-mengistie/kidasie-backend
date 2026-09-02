@@ -8,27 +8,26 @@ import (
 	"github.com/yohannes/kidasie-backend/internal/domain"
 )
 
-
-type SectionLister interface{
-	ListSectionsByLiturgySlug(ctx context.Context , slug string)([]domain.Section , error)
+type SectionLister interface {
+	ListSectionsByLiturgySlug(ctx context.Context, slug string) ([]domain.Section, error)
 }
 
-type listSectionReponse struct{
+type listSectionReponse struct {
 	Data []domain.Section `json:"data"`
 }
 
-func listSections(lister SectionLister) http.HandlerFunc{
-	return func(w http.ResponseWriter , r *http.Request){
+func listSections(lister SectionLister) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		slug := r.PathValue("slug")
 
-		if slug == ""{
-			writeJSON(w, http.StatusBadRequest,errorResponse{
-				Error : "liturgy slug is required",
+		if slug == "" {
+			writeJSON(w, http.StatusBadRequest, errorResponse{
+				Error: "liturgy slug is required",
 			})
 
 			return
 		}
-		sections,err := lister.ListSectionsByLiturgySlug(r.Context() , slug,)
+		sections, err := lister.ListSectionsByLiturgySlug(r.Context(), slug)
 
 		if err != nil {
 			slog.Error(
@@ -36,7 +35,7 @@ func listSections(lister SectionLister) http.HandlerFunc{
 				"error",
 				err,
 			)
-			writeJSON(w , http.StatusInternalServerError,errorResponse{
+			writeJSON(w, http.StatusInternalServerError, errorResponse{
 				Error: "internal server error",
 			})
 			return
@@ -46,10 +45,9 @@ func listSections(lister SectionLister) http.HandlerFunc{
 			sections = []domain.Section{}
 		}
 
-		writeJSON(w,http.StatusOK,listSectionReponse{
-			Data:sections,
+		writeJSON(w, http.StatusOK, listSectionReponse{
+			Data: sections,
 		})
-
 
 	}
 }
