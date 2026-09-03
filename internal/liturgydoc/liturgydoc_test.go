@@ -342,3 +342,110 @@ func TestConvertRejectsAnUnknownRole(t *testing.T) {
 		t.Fatal("Convert accepted an unknown role")
 	}
 }
+
+func TestPaginateNeverStrandsAPrayerHeaderAlone(t *testing.T) {
+	// The body after the header is longer than the room the header leaves, so
+	// a greedy break would put the title on a page of its own.
+	entries := []Entry{
+		{Number: "1", Role: "priest", TextGeez: strings.Repeat("ሀ", 900)},
+		{
+			Number:   "2",
+			Role:     "rubric",
+			Subtype:  "prayer_header",
+			TextGeez: "ጸሎተ ዕጣን ።",
+		},
+		{Number: "2", Role: "priest", TextGeez: strings.Repeat("ለ", 960)},
+	}
+
+	pages := paginate(entries, Budget{TargetRunes: 1000}, 1)
+
+	if len(pages) != 2 {
+		t.Fatalf("page count = %d, want 2", len(pages))
+	}
+
+	if len(pages[1].Entries) != 2 {
+		t.Fatalf(
+			"header page holds %d entries, want the header and its body",
+			len(pages[1].Entries),
+		)
+	}
+
+	if pages[1].Entries[0].Subtype != "prayer_header" {
+		t.Errorf("header does not open its page")
+	}
+}
+
+func TestPaginateOvershootsRatherThanCloseABarelyFilledPage(t *testing.T) {
+	entries := []Entry{
+		{Number: "1", Role: "priest", TextGeez: strings.Repeat("ሀ", 100)},
+		{Number: "2", Role: "people", TextGeez: strings.Repeat("ለ", 950)},
+	}
+
+	pages := paginate(entries, Budget{TargetRunes: 1000}, 1)
+
+	// Together they exceed the target, but closing at 100 runes would leave a
+	// page that looks nothing like its neighbours.
+	if len(pages) != 1 {
+		t.Fatalf("page count = %d, want the two packed together", len(pages))
+	}
+
+	if pages[0].Runes() != 1050 {
+		t.Errorf("page runes = %d, want 1050", pages[0].Runes())
+	}
+}
+
+func TestPaginateFoldsAShortPageBackWhenTheNextEntryIsTooLarge(t *testing.T) {
+	// The short entry cannot join the oversized one after it, so the only
+	// place left for it is the page before.
+	entries := []Entry{
+		{Number: "1", Role: "priest", TextGeez: strings.Repeat("ሀ", 980)},
+		{Number: "2", Role: "people", TextGeez: strings.Repeat("ለ", 43)},
+		{Number: "3", Role: "priest", TextGeez: strings.Repeat("ሐ", 1600)},
+	}
+
+	pages := paginate(entries, Budget{TargetRunes: 1000}, 1)
+
+	if len(pages) != 2 {
+		t.Fatalf("page count = %d, want 2", len(pages))
+	}
+
+	if pages[0].Runes() != 1023 {
+		t.Errorf(
+			"short entry was left on its own: first page = %d runes, want 1023",
+			pages[0].Runes(),
+		)
+	}
+
+	if pages[1].Runes() != 1600 || len(pages[1].Entries) != 1 {
+		t.Errorf("oversized entry did not keep its own page")
+	}
+
+	for index, page := range pages {
+		if page.Number != index+1 {
+			t.Errorf("page %d numbered %d after merging", index, page.Number)
+		}
+	}
+}
+
+func TestPaginateDoesNotFoldAHeaderBackOntoThePageBefore(t *testing.T) {
+	entries := []Entry{
+		{Number: "1", Role: "priest", TextGeez: strings.Repeat("ሀ", 900)},
+		{
+			Number:   "2",
+			Role:     "rubric",
+			Subtype:  "prayer_header",
+			TextGeez: "ጸሎተ ዕጣን ።",
+		},
+		{Number: "2", Role: "priest", TextGeez: strings.Repeat("ለ", 60)},
+	}
+
+	pages := paginate(entries, Budget{TargetRunes: 1000}, 1)
+
+	if len(pages) != 2 {
+		t.Fatalf("page count = %d, want 2", len(pages))
+	}
+
+	if pages[1].Entries[0].Subtype != "prayer_header" {
+		t.Errorf("the short header page was folded backwards")
+	}
+}
