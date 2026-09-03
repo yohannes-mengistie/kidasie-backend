@@ -363,7 +363,7 @@ UPDATED_DIR ?= content/updated
 UPDATED_BEGINNING ?= $(UPDATED_DIR)/Qidase_serate.json
 UPDATED_MANIFEST ?= content/updated-liturgies.tsv
 UPDATED_IMPORT_DIR ?= content/generated/updated
-UPDATED_TARGET_RUNES ?= 1000
+UPDATED_TARGET_RUNES ?= 4000
 UPDATED_SLUGS := $(shell awk -F'\t' 'NF > 1 && $$0 !~ /^#/ { print $$1 }' content/updated-liturgies.tsv)
 
 .PHONY: prepare-updated-liturgies import-updated-liturgies

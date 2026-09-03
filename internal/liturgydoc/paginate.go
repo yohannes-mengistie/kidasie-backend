@@ -8,9 +8,10 @@ import "strings"
 //
 // The source groups average ~314 runes and nearly half fall below 300, so
 // paginating on them one-to-one produces 270-370 very short pages per
-// service. Packing to 1000 runes roughly halves the page count while keeping
-// the ninetieth-percentile page near one budget's worth of scrolling.
-const DefaultTargetRunes = 1000
+// service. Packing to 4000 runes brings a service down to 36-50 pages, about
+// one per stage of the liturgy, at roughly six screens of scrolling each. The
+// page itself carries a scrollbar, so depth within a page stays legible.
+const DefaultTargetRunes = 4000
 
 // Budget controls how entries are packed onto pages.
 type Budget struct {
